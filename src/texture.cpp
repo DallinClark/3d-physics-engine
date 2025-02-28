@@ -3,7 +3,6 @@
 Texture::Texture(const char* texturePath, int unit) : textureUnit(unit) {
     // Creates and binds texture
     glGenTextures(1, &ID);
-    glActiveTexture(GL_TEXTURE0 + textureUnit);  // Activate the texture unit
     glBindTexture(GL_TEXTURE_2D, ID);
 
     // Texture mapping settings

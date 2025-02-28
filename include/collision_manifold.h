@@ -2,31 +2,31 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "rigid_body_2D.h"
+#include "rigid_body.h"
 
 #include <memory>
 
 
 class CollisionManifold {
 public:
-    const std::shared_ptr<RigidBody2D> bodyA;
-    const std::shared_ptr<RigidBody2D> bodyB;
+    const std::shared_ptr<RigidBody> bodyA;
+    const std::shared_ptr<RigidBody> bodyB;
     const float depth;
-    const glm::vec2 normal;
-    const glm::vec2 contactOne;
-    const glm::vec2 contactTwo;
+    const glm::vec3 normal;
+    const glm::vec3 contactOne;
+    const glm::vec3 contactTwo;
     const int contactCount;
 
     CollisionManifold(
-        const std::shared_ptr<RigidBody2D>& bodyA,
-        const std::shared_ptr<RigidBody2D>& bodyB,
-        float depth,
-        const glm::vec2 normal,
-        const glm::vec2 contactOne,
-        const glm::vec2 contactTwo,
-        int contactCount
+        const std::shared_ptr<RigidBody>& bodyA,
+        const std::shared_ptr<RigidBody>& bodyB,
+        const float depth,
+        const glm::vec3 normal,
+        const glm::vec3 contactOne,
+        const glm::vec3 contactTwo,
+        const int contactCount
     )
-        : bodyA(bodyA), 
+        : bodyA(bodyA),
         bodyB(bodyB),
         depth(depth),
         normal(normal),
@@ -36,5 +36,6 @@ public:
     {
     }
 };
+
 
 

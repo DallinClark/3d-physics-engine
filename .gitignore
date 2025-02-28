@@ -1,5 +1,7 @@
 #ignore visual studio files
 *.vcxproj*
+*.sln
+3d-ph*
 
 #ignore build and debug files
 x64/

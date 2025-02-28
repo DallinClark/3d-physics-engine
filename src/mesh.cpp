@@ -30,17 +30,20 @@ void Mesh::setupMesh() {
 
     // Vertex Colors
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Color));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
     glBindVertexArray(0); // Unbind VAO after setting up attributes
 }
 
 
-void Mesh::Draw(Shader& shader, glm::mat4 trans, glm::vec3 color) {
+void Mesh::draw(Shader& shader, glm::mat4 world, glm::mat4 view, glm::mat4 proj) {
     shader.use();
     glBindVertexArray(VAO);
-    shader.setMatrix4fv("transform", trans);
-    shader.set3f("myColor", color.x, color.y, color.z);
+    shader.setMatrix4fv("world", world);
+    shader.setMatrix4fv("view", view);
+    shader.setMatrix4fv("proj", proj);
+
+    //shader.set3f("myColor", color.x, color.y, color.z);
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
 
     glBindVertexArray(0);
@@ -48,10 +51,10 @@ void Mesh::Draw(Shader& shader, glm::mat4 trans, glm::vec3 color) {
 
 std::vector<glm::vec4> Mesh::getVertexPositions() {
     std::vector<glm::vec4> positions;
-    positions.reserve(vertices.size()); 
+    positions.reserve(verticesNoDuplicates.size()); 
 
-    for (const auto& vertex : vertices) {
-        positions.emplace_back(vertex.Position, 1.0f); 
+    for (const auto& vertex : verticesNoDuplicates) {
+        positions.emplace_back(vertex); 
     }
 
     return positions;

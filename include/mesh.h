@@ -8,16 +8,15 @@
 #include <vector>
 using namespace std;
 
-// FOR 3d LOOK AT OPENGL CLASS, THIS IS ADAPTED FOR 2D AND NOT USING TEXTURES
-
 enum class ShapeType {
-    Circle,
-    Square
+    Sphere,
+    Cube
 };
 
 struct Vertex {
     glm::vec3 Position;
-    glm::vec3 Color;
+    //glm::vec3 Color;
+    glm::vec2 TexCoords;
 };
 
 
@@ -25,6 +24,7 @@ class Mesh {
 public:
     // mesh Data
     vector<Vertex>       vertices;
+    vector<glm::vec4>    verticesNoDuplicates;
     vector<unsigned int> indices;
     unsigned int VAO;
     ShapeType shapeType;
@@ -33,10 +33,13 @@ public:
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, ShapeType type);
 
     // render the mesh
-    void Draw(Shader& shader, glm::mat4 trans, glm::vec3 color);
+    void draw(Shader& shader, glm::mat4 world, glm::mat4 view, glm::mat4 proj);
 
-    vector<Vertex> GetVertices() { return vertices; }
+    // getters
+    vector<Vertex> getVertices() const { return vertices; }
     std::vector<glm::vec4> getVertexPositions();
+
+    void setVerticesNoDuplicates(vector<glm::vec4> newVertices) { verticesNoDuplicates = newVertices; }
 
 private:
     // render data 

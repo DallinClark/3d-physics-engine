@@ -2,36 +2,41 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/epsilon.hpp"
 
 #include <memory>
 #include <cmath>
 
 #include "mesh.h"
-#include "rigid_body_2D.h"
+#include "collision_manifold.h"
+#include "rigid_body.h"
 
 class Collisions {
 public:
-	static bool IntersectCircles(glm::vec2 centerA, float radiusA, glm::vec2 centerB, float radiusB,
-	glm::vec2& normal, float& depth);
-	static bool IntersectPolygons(vector<glm::vec4> verticesA, vector<glm::vec4> verticesB, glm::vec2 polyCenterA, glm::vec2 polyCenterB, glm::vec2& normal, float& depth);
-	static bool IntersectCirclePolygon(glm::vec2 circleCenter, float circleRadius, vector<glm::vec4> vertices, glm::vec2 polyCenter, glm::vec2& normal, float& depth);
+	// Takes in two rigid bodies and returns if they collide and updates depth and normal to depth and direction of collision
+	static bool collide(std::shared_ptr<RigidBody> bodyA, std::shared_ptr<RigidBody> bodyB, glm::vec3& normal, float& depth);
 
-	static void FindContactPoints(std::shared_ptr<RigidBody2D> bodyA, std::shared_ptr<RigidBody2D> bodyB, glm::vec2& contactOne, glm::vec2& contactTwo, int& contactCount);
-	static void FindContactPoint(glm::vec2 centerA, float radiusA, glm::vec2 centerB, glm::vec2& contactPoint);
-	static void FindContactPoint(glm::vec2 circleCenter, float circleRadius, glm::vec2 polygonCenter, vector<glm::vec4> polygonVertices, glm::vec2& collisionPoint);
-	static void FindContactPoint(vector<glm::vec4> verticesA, vector<glm::vec4> verticesB, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
+	// Functions for intersecting specific shape types
+	static bool intersectCircles(glm::vec3 centerA, float radiusA, glm::vec3 centerB, float radiusB, glm::vec3& normal, float& depth);
+	static bool intersectPolygons(const vector<glm::vec3>& verticesA, const vector<glm::vec3>& verticesB, const glm::vec3& centerA, const glm::vec3& centerB, glm::vec3& normal, float& depth);
+	static bool intersectCirclePolygon(const glm::vec3& circleCenter,const float& circleRadius, const vector<glm::vec3>& vertices, glm::vec3 polyCenter, glm::vec3& normal, float& depth);
 
-	static void PointSegmentDistance(glm::vec2 p, glm::vec2 a, glm::vec2 b, float& distanceSquared, glm::vec2& contact);
+	// Implementation of GJK collision algorithm and EPA for depth and normal detection
+	static bool EPA(std::vector<glm::vec3> simplex, const std::vector<glm::vec3>& verticesA, const std::vector<glm::vec3>& verticesB, 
+		            const glm::vec3& circleCenter, const float& radius, bool isCircle, float& depth, glm::vec3& normal);
+	static glm::vec3 minkowskiDifference(const vector<glm::vec3>& verticesA, const vector<glm::vec3>& verticesB, const glm::vec3& direction);             // for polygon polygon
+	static glm::vec3 minkowskiDifference(const vector<glm::vec3>& vertices, const glm::vec3& circleCenter, const float radius, glm::vec3& direction);    // for circle polygon
 
-
-	static bool Collide(std::shared_ptr<RigidBody2D> bodyA, std::shared_ptr<RigidBody2D> bodyB, glm::vec2& normal, float& depth);
-
-	static bool IntersectAABBs(AABB a, AABB b);
+	// Helper functions for GJK and EPA algorithms
+	static bool nextSimplex(std::vector<glm::vec3>& simplex, glm::vec3& direction);
+	static void addIfUniqueEdge(std::vector<std::pair<int, int>>& edges, int a, int b);
+	static bool tetrahedron(std::vector<glm::vec3>& simplex, glm::vec3& direction);
+	static bool triangle(std::vector<glm::vec3>& simplex, glm::vec3& direction);
+	static bool line(std::vector<glm::vec3>& simplex, glm::vec3& direction);
 
 private:
-
-	static void ProjectVertices(vector<glm::vec4> vertices, glm::vec2 axis, float& min, float& max);
-	static void ProjectCircle(glm::vec2 center, float radius, glm::vec2 axis, float& min, float& max);
-
-	static int FindClosestPointOnPolygon(glm::vec2 circleCenter, vector<glm::vec4> vertices);
+	// Constants for GJK algorithm
+	static constexpr int GJK_MAX_NUM_ITERATIONS = 50;
+	static constexpr int EPA_MAX_NUM_ITERATIONS = 50;
+	static constexpr float EPA_TOLERANCE = 0.001f;
 };
