@@ -2,12 +2,12 @@
 
 const float World::MAX_BODY_SIZE = 640.0f * 640.0f;
 const float World::MIN_BODY_SIZE = 0.01f;
-const float World::MIN_DENSITY = 0.5f;    // g/cm^3
+const float World::MIN_DENSITY = 0.5f;
 const float World::MAX_DENSITY = 21.4f;
-const glm::vec3 World::GRAVITY_CONSTANT = glm::vec3(0.0f, -980.665f, 0.0f);
+const glm::vec3 World::GRAVITY_CONSTANT = glm::vec3(0.0f, -9.8, 0.0f);
 
-const int World::SPHERE_STACK_COUNT = 5;
-const int World::SPHERE_SECTOR_COUNT = 5;
+const int World::SPHERE_STACK_COUNT = 30;
+const int World::SPHERE_SECTOR_COUNT = 30;
 
 World::World() {
 	createMeshes();
@@ -16,6 +16,7 @@ World::World() {
 void World::createMeshes() {
 	// Rectangle Mesh
 
+	// vertices with tex coords for OpenGL
 	std::vector<Vertex> vertices = {
 		// Front face
 		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 0.0f)}, // 0
@@ -54,7 +55,6 @@ void World::createMeshes() {
 		{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f)}  // 23
 	};
 
-
 	std::vector<unsigned int> indices = {
 		// Front face
 		0, 1, 2,  1, 2, 3,
@@ -84,9 +84,59 @@ void World::createMeshes() {
 		{glm::vec4(-0.5f,  0.5f, -0.5f, 1.0f)} // 7
 	};
 
+	// used to make face structs, counter-clockwise
+	std::vector<int> faces = {
+	1, 3, 2, 0,  // Front 
+	5, 7, 6, 4,  // Back 
+	0, 2, 7, 5,  // Left 
+	1, 4, 6, 3,  // Right 
+	2, 3, 6, 7,  // Top 
+	0, 5, 4, 1   // Bottom 
+	};
 
-	std::shared_ptr<Mesh> newMesh = std::make_shared<Mesh>(vertices, indices, ShapeType::Cube);
-	newMesh->setVerticesNoDuplicates(verticesNoDuplicates);
+	vector<Face> faceStructs;
+	for (size_t i = 0; i < faces.size(); i += 4) {
+		Face face;
+
+		// Loop over each of the 4 indices.
+		for (int j = 0; j < 4; ++j) {
+			int index = faces[i + j];
+			face.indices.push_back(index);
+			// Convert the glm::vec4 to glm::vec3 (ignoring the w component).
+			glm::vec4 v4 = verticesNoDuplicates[index];
+			glm::vec3 v3(v4.x, v4.y, v4.z);
+			face.vertices.push_back(v3);
+		}
+		// Compute the face normal using the first three vertices.
+		// (Assumes the vertices are ordered such that the computed normal points outward.)
+		glm::vec3 edge1 = face.vertices[1] - face.vertices[0];
+		glm::vec3 edge2 = face.vertices[3] - face.vertices[0];
+		face.normal = glm::normalize(glm::cross(edge1, edge2));
+
+		faceStructs.push_back(face);
+	}
+
+	std::vector<int> edges = {
+		0, 1,  // Front bottom edge
+		1, 3,  // Front right edge
+		3, 2,  // Front top edge
+		2, 0,  // Front left edge
+
+		5, 4,  // Back bottom edge 
+		4, 6,  // Back right edge
+		6, 7,  // Back top edge
+		7, 5,  // Back left edge
+
+		0, 5,  // Left-bottom side edge
+		1, 4,  // Right-bottom side edge
+		2, 7,  // Left-top side edge
+		3, 6   // Right-top side edge
+	};
+
+
+	std::shared_ptr<Mesh> newMesh = std::make_shared<Mesh>(vertices, indices, verticesNoDuplicates, ShapeType::Cube);
+	newMesh->setFaces(faceStructs);
+	newMesh->setEdges(edges);
 	meshes[ShapeType::Cube] = newMesh;
 
 	vertices.clear();
@@ -152,11 +202,9 @@ void World::createMeshes() {
 		}
 	}
 
-	std::shared_ptr<Mesh> newSphereMesh = std::make_shared<Mesh>(vertices, indices, ShapeType::Sphere);
-	newSphereMesh->setVerticesNoDuplicates(verticesNoDuplicates);
+	std::shared_ptr<Mesh> newSphereMesh = std::make_shared<Mesh>(vertices, indices,verticesNoDuplicates, ShapeType::Sphere);
 	meshes[ShapeType::Sphere] = newSphereMesh;
 }
-
 
 void World::draw(Shader& shader, glm::mat4 view, glm::mat4 projection) {
 	for (int i = 0; i < bodyList.size(); ++i) {
@@ -164,19 +212,22 @@ void World::draw(Shader& shader, glm::mat4 view, glm::mat4 projection) {
 
 		glm::mat4 world = currBody->getTransformMatrix();
 
+		Texture& currTexture = currBody->texture;
+		currTexture.use();
+		shader.setInt("texture1", 0);
+
 		currBody->getMesh()->draw(shader, world, view, projection);
 	}
 }
 
-
 void World::AddBody(std::shared_ptr<RigidBody> body) {
 	bodyList.push_back(body);
 }
+
 void World::RemoveBody(int index) {
 	this->bodyList.erase(bodyList.begin() + index);
 	std::cout << "removed" << endl;
 }
-
 
 bool World::GetBody(int index, std::shared_ptr<RigidBody>& body) {
 	body = nullptr;
@@ -189,260 +240,178 @@ bool World::GetBody(int index, std::shared_ptr<RigidBody>& body) {
 	return true;
 }
 
-//void World::ResolveCollisionsBasic(CollisionManifold contact) {
-//
-//	std::shared_ptr<RigidBody> bodyA = contact.bodyA;
-//	std::shared_ptr<RigidBody> bodyB = contact.bodyB;
-//	glm::vec2 normal = contact.normal;
-//	float depth = contact.depth;
-//
-//	glm::vec2 linVelocityA = bodyA->getLinearVelocity();
-//	glm::vec2 linVelocityB = bodyB->getLinearVelocity();
-//
-//	glm::vec2 relativeVelocity = linVelocityB - linVelocityA;
-//
-//	if (glm::dot(relativeVelocity, normal) > 0.0f) {
-//		return;
-//	}
-//
-//	float e = std::min(bodyA->restitution, bodyB->restitution);
-//
-//
-//	float j = -(1.0f + e) * glm::dot(relativeVelocity, normal);
-//	j /= bodyA->invMass + bodyB->invMass;
-//
-//	glm::vec2 impulse = j * normal;
-//
-//	bodyA->setLinearVelocity(linVelocityA - (impulse * bodyA->invMass));
-//	bodyB->setLinearVelocity(linVelocityB + (impulse * bodyB->invMass));
-//}
-//
-//void World::ResolveCollisionsWithRotation(CollisionManifold contact) {
-//	std::shared_ptr<RigidBody> bodyA = contact.bodyA;
-//	std::shared_ptr<RigidBody> bodyB = contact.bodyB;
-//	glm::vec2 normal = contact.normal;
-//	glm::vec2 contact1 = contact.contactOne;
-//	glm::vec2 contact2 = contact.contactTwo;
-//	int contactCount = contact.contactCount;
-//
-//	float e = std::min(bodyA->restitution, bodyB->restitution);
-//
-//	glm::vec2 contactList[] = { contact1, contact2 };
-//	glm::vec2 impulseList[2];
-//	glm::vec2 raList[2];
-//	glm::vec2 rbList[2];
-//
-//	for (int i = 0; i < contactCount; ++i) {
-//		glm::vec2 ra = contactList[i] - bodyA->getPosition();
-//		glm::vec2 rb = contactList[i] - bodyB->getPosition();
-//
-//		raList[i] = ra;
-//		rbList[i] = rb;
-//
-//		glm::vec2 raPerp = glm::vec2(-ra.y, ra.x);
-//		glm::vec2 rbPerp = glm::vec2(-rb.y, rb.x);
-//
-//		glm::vec2 angularLinearVelocityA = raPerp * bodyA->getAngularVelocity();
-//		glm::vec2 angularLinearVelocityB = rbPerp * bodyB->getAngularVelocity();
-//
-//		glm::vec2 relativeVelocity = (bodyB->getLinearVelocity() + angularLinearVelocityB)
-//									- (bodyA->getLinearVelocity() + angularLinearVelocityA);
-//
-//		float contactVelocityMag = glm::dot(relativeVelocity, normal);
-//
-//		if (contactVelocityMag > 0.0f) {
-//			continue;
-//		}
-//		
-//		float raPerpDotN = glm::dot(raPerp, normal);
-//		float rbPerpDotN = glm::dot(rbPerp, normal);
-//
-//		float denom = bodyA->invMass + bodyB->invMass + (raPerpDotN * raPerpDotN) * bodyA->invInertia +
-//														(rbPerpDotN * rbPerpDotN) * bodyB->invInertia;
-//
-//		float j = -(1.0f + e) * contactVelocityMag;
-//		j /= denom;
-//		if (contactCount != 1) {
-//			j /= 2.0f;
-//		}
-//
-//		glm::vec2 impulse = j * normal;
-//
-//		impulseList[i] = impulse;
-//	}
-//
-//	for (int i = 0; i < contactCount; ++i) {
-//		glm::vec2 impulse = impulseList[i];
-//		glm::vec2 ra = raList[i];
-//		glm::vec2 rb = rbList[i];
-//
-//		bodyA->setLinearVelocity(bodyA->getLinearVelocity() - impulse * bodyA->invMass);
-//		bodyB->setLinearVelocity(bodyB->getLinearVelocity() + impulse * bodyB->invMass);
-//
-//		float angularImpulseA = glm::cross(glm::vec3(ra, 0.0f), glm::vec3(impulse, 0.0f)).z;
-//		float angularImpulseB = glm::cross(glm::vec3(rb, 0.0f), glm::vec3(impulse, 0.0f)).z;
-//
-//		bodyA->setAngularVelocity(bodyA->getAngularVelocity() - angularImpulseA * bodyA->invInertia);
-//		bodyB->setAngularVelocity(bodyB->getAngularVelocity() + angularImpulseB * bodyB->invInertia);
-//
-//	}
-//}
-//
-//void World::ResolveCollisionsWithRotationAndFriction(CollisionManifold contact) {
-//	std::shared_ptr<RigidBody> bodyA = contact.bodyA;
-//	std::shared_ptr<RigidBody> bodyB = contact.bodyB;
-//	glm::vec2 normal = contact.normal;
-//	glm::vec2 contact1 = contact.contactOne;
-//	glm::vec2 contact2 = contact.contactTwo;
-//	int contactCount = contact.contactCount;
-//
-//	float e = std::min(bodyA->restitution, bodyB->restitution);
-//
-//	float sf = (bodyA->staticFriction + bodyB->staticFriction) * 0.5f;
-//	float df = (bodyA->dynamicFriction + bodyB->dynamicFriction) * 0.5f;
-//
-//
-//	glm::vec2 contactList[] = { contact1, contact2 };
-//	glm::vec2 impulseList[2];
-//	glm::vec2 frictionImpulseList[2];
-//	glm::vec2 raList[2];
-//	glm::vec2 rbList[2];
-//	float jList[2] = { 0.0f ,0.0f };
-//
-//	for (int i = 0; i < contactCount; ++i) {
-//		glm::vec2 ra = contactList[i] - bodyA->getPosition();
-//		glm::vec2 rb = contactList[i] - bodyB->getPosition();
-//
-//		raList[i] = ra;
-//		rbList[i] = rb;
-//
-//		glm::vec2 raPerp = glm::vec2(-ra.y, ra.x);
-//		glm::vec2 rbPerp = glm::vec2(-rb.y, rb.x);
-//
-//		glm::vec2 angularLinearVelocityA = raPerp * bodyA->getAngularVelocity();
-//		glm::vec2 angularLinearVelocityB = rbPerp * bodyB->getAngularVelocity();
-//
-//		glm::vec2 relativeVelocity = (bodyB->getLinearVelocity() + angularLinearVelocityB)
-//			- (bodyA->getLinearVelocity() + angularLinearVelocityA);
-//
-//		float contactVelocityMag = glm::dot(relativeVelocity, normal);
-//
-//		if (contactVelocityMag > 0.0f) {
-//			continue;
-//		}
-//
-//		float raPerpDotN = glm::dot(raPerp, normal);
-//		float rbPerpDotN = glm::dot(rbPerp, normal);
-//
-//		float j = -(1.0f + e) * contactVelocityMag;
-//		float denom = bodyA->invMass + bodyB->invMass + ((raPerpDotN * raPerpDotN) * bodyA->invInertia) +
-//			((rbPerpDotN * rbPerpDotN) * bodyB->invInertia);
-//
-//		j /= denom;
-//		if (contactCount != 1) {
-//			j /= 2.0f;
-//		}
-//
-//		glm::vec2 impulse = j * normal;
-//
-//		jList[i] = j;
-//
-//		impulseList[i] = impulse;
-//	}
-//
-//	for (int i = 0; i < contactCount; ++i) {
-//		glm::vec2 impulse = impulseList[i];
-//		glm::vec2 ra = raList[i];
-//		glm::vec2 rb = rbList[i];
-//
-//		bodyA->setLinearVelocity(bodyA->getLinearVelocity() - impulse * bodyA->invMass);
-//		bodyB->setLinearVelocity(bodyB->getLinearVelocity() + impulse * bodyB->invMass);
-//
-//		float angularImpulseA = glm::cross(glm::vec3(ra, 0.0f), glm::vec3(impulse, 0.0f)).z;
-//		float angularImpulseB = glm::cross(glm::vec3(rb, 0.0f), glm::vec3(impulse, 0.0f)).z;
-//
-//		bodyA->setAngularVelocity(bodyA->getAngularVelocity() - angularImpulseA * bodyA->invInertia);
-//		bodyB->setAngularVelocity(bodyB->getAngularVelocity() + angularImpulseB * bodyB->invInertia);
-//
-//	}
-//	for (int i = 0; i < contactCount; ++i) {
-//		glm::vec2 ra = raList[i];
-//		glm::vec2 rb = rbList[i];
-//
-//		glm::vec2 raPerp = glm::vec2(-ra.y, ra.x);
-//		glm::vec2 rbPerp = glm::vec2(-rb.y, rb.x);
-//
-//		glm::vec2 angularLinearVelocityA = raPerp * bodyA->getAngularVelocity();
-//		glm::vec2 angularLinearVelocityB = rbPerp * bodyB->getAngularVelocity();
-//
-//		glm::vec2 relativeVelocity = (bodyB->getLinearVelocity() + angularLinearVelocityB)
-//			- (bodyA->getLinearVelocity() + angularLinearVelocityA);
-//
-//		glm::vec2 tangent = relativeVelocity - glm::dot(relativeVelocity, normal) * normal;
-//
-//		if (glm::length(tangent) < 0.01f) {
-//			continue;
-//		}
-//		else {
-//			tangent = glm::normalize(tangent);
-//		}
-//
-//		float raPerpDotT = glm::dot(raPerp, tangent);
-//		float rbPerpDotT = glm::dot(rbPerp, tangent);
-//
-//		float denom = bodyA->invMass + bodyB->invMass + (raPerpDotT * raPerpDotT) * bodyA->invInertia +
-//			(rbPerpDotT * rbPerpDotT) * bodyB->invInertia;
-//		if (denom < 1e-6f) {
-//			denom = 1e-6f;
-//		}
-//
-//		float jt = -glm::dot(relativeVelocity, tangent);
-//		jt /= denom;
-//
-//		if (contactCount != 1) {
-//			jt /= 2.0f;
-//		}
-//
-//		glm::vec2 frictionImpulse;
-//
-//		float j = jList[i];
-//
-//		//frictionImpulse = jt * tangent;
-//
-//
-//		if (std::abs(jt) <= (j * 0.6f)) {
-//			frictionImpulse = jt * tangent;
-//		}
-//		else {
-//			frictionImpulse = -j * 0.4f * tangent;
-//		}
-//
-//		frictionImpulseList[i] = frictionImpulse;
-//	}
-//
-//	for (int i = 0; i < contactCount; ++i) {
-//		glm::vec2 impulse = frictionImpulseList[i];
-//		glm::vec2 ra = raList[i];
-//		glm::vec2 rb = rbList[i];
-//
-//		bodyA->setLinearVelocity(bodyA->getLinearVelocity() - impulse * bodyA->invMass);
-//		bodyB->setLinearVelocity(bodyB->getLinearVelocity() + impulse * bodyB->invMass);
-//
-//		float angularImpulseA = ra.x * impulse.y - ra.y * impulse.x;
-//		float angularImpulseB = rb.x * impulse.y - rb.y * impulse.x;
-//
-//		bodyA->setAngularVelocity(bodyA->getAngularVelocity() - angularImpulseA * bodyA->invInertia);
-//		bodyB->setAngularVelocity(bodyB->getAngularVelocity() + angularImpulseB * bodyB->invInertia);
-//
-//	}
-//}
+void World::resolveCollisions(CollisionManifold contact) {
+	std::shared_ptr<RigidBody> bodyA = contact.bodyA;
+	std::shared_ptr<RigidBody> bodyB = contact.bodyB;
+	glm::vec3 normal = contact.normal;
+	float depth = contact.depth;
+	
+	glm::vec3 linVelocityA = bodyA->getLinearVelocity();
+	glm::vec3 linVelocityB = bodyB->getLinearVelocity();
+	
+	glm::vec3 relativeVelocity = linVelocityB - linVelocityA;
+	
+	if (glm::dot(relativeVelocity, normal) > 0.0f) {
+		return;
+	}
+	
+	float e = std::min(bodyA->restitution, bodyB->restitution);
+	
+	
+	float j = -(1.0f + e) * glm::dot(relativeVelocity, normal);
+	j /= bodyA->invMass + bodyB->invMass;
+	
+	glm::vec3 impulse = j * normal;
+	
+	bodyA->setLinearVelocity(linVelocityA - (impulse * bodyA->invMass));
+	bodyB->setLinearVelocity(linVelocityB + (impulse * bodyB->invMass));
+}
 
+void World::resolveCollisionsWithRotation(CollisionManifold contact) {
+	// Retrieve the two bodies, the collision normal, and the contact points from the manifold.
+	std::shared_ptr<RigidBody> bodyA = contact.bodyA;
+	std::shared_ptr<RigidBody> bodyB = contact.bodyB;
+	glm::vec3 normal = contact.normal;  // 3D collision normal
+	std::vector<glm::vec3> contactList = contact.contactPoints;
+	int contactCount = contact.contactCount;
+
+	// Use the minimum restitution between the bodies.
+	float e = std::min(bodyA->restitution, bodyB->restitution);
+
+	// These vectors will store the computed impulses and the offsets (ra and rb) from each body's center of mass.
+	std::vector<glm::vec3> impulseList;
+	std::vector<glm::vec3> raList;
+	std::vector<glm::vec3> rbList;
+
+	// Process each contact point
+	for (int i = 0; i < contactCount; ++i) {
+		// Compute the offset from each body's center of mass to the contact point.
+		glm::vec3 ra = contactList[i] - bodyA->getPosition();
+		glm::vec3 rb = contactList[i] - bodyB->getPosition();
+		raList.push_back(ra);
+		rbList.push_back(rb);
+
+		// Compute the velocity at the contact point due to both linear and angular motion.
+		glm::vec3 angularVelocityA = glm::cross(bodyA->getAngularVelocity(), ra);
+		glm::vec3 angularVelocityB = glm::cross(bodyB->getAngularVelocity(), rb);
+		glm::vec3 relativeVelocity = (bodyB->getLinearVelocity() + angularVelocityB) -
+			(bodyA->getLinearVelocity() + angularVelocityA);
+
+		// Compute the magnitude of the contact velocity along the collision normal.
+		float contactVelocityMag = glm::dot(relativeVelocity, normal);
+
+		// If the bodies are separating, no corrective impulse is needed.
+		// Instead of skipping (which would misalign our contact lists), we assign zero impulse.
+		float j = 0.0f;
+		if (contactVelocityMag <= 0.0f) {
+			// Compute the contribution from rotational inertia.
+			glm::vec3 raCrossN = glm::cross(ra, normal);
+			glm::vec3 rbCrossN = glm::cross(rb, normal);
+			glm::vec3 raInertia = bodyA->invIntertiaTensor * raCrossN;
+			glm::vec3 rbInertia = bodyB->invIntertiaTensor * rbCrossN;
+
+			// Denominator combines the inverse masses and the rotational inertia terms.
+			float denom = bodyA->invMass + bodyB->invMass +
+				glm::dot(glm::cross(raInertia, ra), normal) +
+				glm::dot(glm::cross(rbInertia, rb), normal);
+
+			// Compute the impulse scalar.
+			j = -(1.0f + e) * contactVelocityMag / denom;
+
+			// If there are multiple contacts, distribute the impulse evenly.
+			if (contactCount > 1) {
+				j /= static_cast<float>(contactCount);
+			}
+		}
+		// Compute the impulse vector.
+		glm::vec3 impulse = j * normal;
+		impulseList.push_back(impulse);
+	}
+
+	// Apply the computed impulses to the bodies.
+	for (size_t i = 0; i < impulseList.size(); ++i) {
+		glm::vec3 impulse = impulseList[i];
+		glm::vec3 ra = raList[i];
+		glm::vec3 rb = rbList[i];
+
+		// Update linear velocities: subtract impulse on A, add impulse on B.
+		bodyA->setLinearVelocity(bodyA->getLinearVelocity() - impulse * bodyA->invMass);
+		bodyB->setLinearVelocity(bodyB->getLinearVelocity() + impulse * bodyB->invMass);
+
+		// Compute the angular impulse contributions.
+		glm::vec3 angularImpulseA = bodyA->invIntertiaTensor * glm::cross(ra, impulse);
+		glm::vec3 angularImpulseB = bodyB->invIntertiaTensor * glm::cross(rb, impulse);
+
+		// Update angular velocities accordingly.
+		bodyA->setAngularVelocity(bodyA->getAngularVelocity() - angularImpulseA);
+		bodyB->setAngularVelocity(bodyB->getAngularVelocity() + angularImpulseB);
+	}
+	for (int i = 0; i < contactCount; ++i) {
+		glm::vec3 ra = raList[i];
+		glm::vec3 rb = rbList[i];
+
+		// Calculate the velocity at the contact point due to both linear and angular motion.
+		glm::vec3 angularVelocityA = glm::cross(bodyA->getAngularVelocity(), ra);
+		glm::vec3 angularVelocityB = glm::cross(bodyB->getAngularVelocity(), rb);
+		glm::vec3 relativeVelocity = (bodyB->getLinearVelocity() + angularVelocityB) -
+			(bodyA->getLinearVelocity() + angularVelocityA);
+
+		// Remove the normal component to isolate the tangential (sliding) component.
+		glm::vec3 tangent = relativeVelocity - glm::dot(relativeVelocity, normal) * normal;
+
+		// If the tangential component is nearly zero, skip friction for this contact.
+		if (glm::length(tangent) < 0.01f) {
+			continue;
+		}
+		else {
+			tangent = glm::normalize(tangent);
+		}
+
+		// Compute the friction denominator (similar to the normal impulse denominator but along the tangent)
+		glm::vec3 raCrossT = glm::cross(ra, tangent);
+		glm::vec3 rbCrossT = glm::cross(rb, tangent);
+		glm::vec3 raInertiaT = bodyA->invIntertiaTensor * raCrossT;
+		glm::vec3 rbInertiaT = bodyB->invIntertiaTensor * rbCrossT;
+		float frictionDenom = bodyA->invMass + bodyB->invMass +
+			glm::dot(glm::cross(raInertiaT, ra), tangent) +
+			glm::dot(glm::cross(rbInertiaT, rb), tangent);
+
+		// Compute the friction impulse magnitude along the tangent.
+		// This is based on the projection of relative velocity along tangent.
+		float jt = -glm::dot(relativeVelocity, tangent) / frictionDenom;
+
+		// Retrieve the normal impulse magnitude for this contact.
+		// (Assumes impulseList[i] was computed previously in the normal impulse loop.)
+		float jNormal = glm::length(impulseList[i]);
+
+		// Compute a combined friction coefficient.
+		// This example uses the geometric mean; you might choose an average or minimum.
+		float mu = 0.6f;
+
+		// Clamp the friction impulse magnitude to Coulomb's law: |jt| <= mu * |jNormal|
+		jt = glm::clamp(jt, -mu * jNormal, mu * jNormal);
+
+		// Compute the friction impulse vector.
+		glm::vec3 frictionImpulse = jt * tangent;
+
+		// Apply friction impulse to the linear velocities.
+		bodyA->setLinearVelocity(bodyA->getLinearVelocity() - frictionImpulse * bodyA->invMass);
+		bodyB->setLinearVelocity(bodyB->getLinearVelocity() + frictionImpulse * bodyB->invMass);
+
+		// Apply friction impulse to the angular velocities.
+		glm::vec3 angularImpulseA = bodyA->invIntertiaTensor * glm::cross(ra, frictionImpulse);
+		glm::vec3 angularImpulseB = bodyB->invIntertiaTensor * glm::cross(rb, frictionImpulse);
+		bodyA->setAngularVelocity(bodyA->getAngularVelocity() - angularImpulseA);
+		bodyB->setAngularVelocity(bodyB->getAngularVelocity() + angularImpulseB);
+	}
+
+}
 
 void World::Step(float time, int iterations) {
 	for (int i = 0; i < iterations; ++i) {
 		contactPairs.clear();
 
-		//StepBodies(time, iterations);
+		StepBodies(time, iterations);
 		//BroadPhase();
 		NarrowPhase();
 	}
@@ -479,36 +448,28 @@ void World::NarrowPhase() {
 			std::shared_ptr<RigidBody> bodyB = bodyList[j];
 
 			if (Collisions::collide(bodyA, bodyB, normal, depth)) {
+				vector<glm::vec3> collisionPoints;
+				int collisionCount;
+				Collisions::findContactPoints(bodyA, bodyB, normal, depth, collisionPoints, collisionCount);
+				/*cout << "COLLISION COUNT: " << collisionCount << "\n";
+				cout << "FIRST POINT: " << collisionPoints[0].x << ", " << collisionPoints[0].y << ", " << collisionPoints[0].z << "\n";*/
+				CollisionManifold contact(bodyA, bodyB, depth, normal, collisionPoints, collisionCount);
+
 				seperateBodies(bodyA, bodyB, (normal * depth));
+
+				resolveCollisionsWithRotation(contact);
 			}
 		}
 	}
-	/*for (int i = 0; i < contactPairs.size(); ++i) {
-		glm::vec2 normal;
-		float depth;
-		std::shared_ptr<RigidBody> bodyA = bodyList[contactPairs[i].item1];
-		std::shared_ptr<RigidBody> bodyB = bodyList[contactPairs[i].item2];
-
-
-		if (Collisions::Collide(bodyA, bodyB, normal, depth)) {
-			SeperateBodies(bodyA, bodyB, (normal * depth));
-
-			glm::vec2 contactOne, contactTwo;
-			int contactCount = 0;
-			Collisions::FindContactPoints(bodyA, bodyB, contactOne, contactTwo, contactCount);
-			CollisionManifold contact = CollisionManifold(bodyA, bodyB, depth, normal, contactOne, contactTwo, contactCount);
-			this->ResolveCollisionsWithRotationAndFriction(contact);
-		}
-	}*/
 }
 //
-//void World::StepBodies(float time, int iterations) {
-//	for (int i = 0; i < bodyList.size(); ++i) {
-//		if (!bodyList[i]->isStatic) {
-//			bodyList[i]->Step(time, GRAVITY_CONSTANT, iterations);
-//		}
-//	}
-//}
+void World::StepBodies(float time, int iterations) {
+	for (int i = 0; i < bodyList.size(); ++i) {
+		if (!bodyList[i]->isStatic) {
+			bodyList[i]->Step(time, GRAVITY_CONSTANT, iterations);
+		}
+	}
+}
 //
 void World::seperateBodies(std::shared_ptr<RigidBody> bodyA, std::shared_ptr<RigidBody> bodyB, glm::vec3 moveVector) {
 	if (bodyA->isStatic) {

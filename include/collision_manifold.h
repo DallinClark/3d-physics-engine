@@ -9,29 +9,26 @@
 
 class CollisionManifold {
 public:
-    const std::shared_ptr<RigidBody> bodyA;
-    const std::shared_ptr<RigidBody> bodyB;
-    const float depth;
-    const glm::vec3 normal;
-    const glm::vec3 contactOne;
-    const glm::vec3 contactTwo;
-    const int contactCount;
+    std::shared_ptr<RigidBody> bodyA;
+    std::shared_ptr<RigidBody> bodyB;
+    float depth;
+    glm::vec3 normal;
+    std::vector<glm::vec3> contactPoints;
+    int contactCount;
 
     CollisionManifold(
         const std::shared_ptr<RigidBody>& bodyA,
         const std::shared_ptr<RigidBody>& bodyB,
-        const float depth,
-        const glm::vec3 normal,
-        const glm::vec3 contactOne,
-        const glm::vec3 contactTwo,
-        const int contactCount
+        float depth,
+        const glm::vec3& normal,
+        const std::vector<glm::vec3>& contactPoints,
+        int contactCount
     )
         : bodyA(bodyA),
         bodyB(bodyB),
         depth(depth),
         normal(normal),
-        contactOne(contactOne),
-        contactTwo(contactTwo),
+        contactPoints(contactPoints),
         contactCount(contactCount)
     {
     }

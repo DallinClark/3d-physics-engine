@@ -3,8 +3,10 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/orthonormalize.hpp"
 #include "mesh.h"
 #include "aabb.h"
+#include "texture.h"
 
 #include <string>
 #include <random>
@@ -17,8 +19,6 @@ class RigidBody {
 private:
     glm::vec3 position;
     glm::vec3 linearVelocity;
-    glm::quat rotation;
-    float angularVelocity;
     bool transformUpdateRequired;
     bool aabbUpdateRequired;
     AABB aabb;
@@ -36,7 +36,7 @@ private:
 
 public:
     RigidBody(glm::vec3 position, float density, float mass, float restitution, float area,
-        bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, glm::vec3 color, std::shared_ptr<Mesh> mesh);
+        bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, glm::vec3 color, std::shared_ptr<Mesh> mesh, Texture& texture);
 
     const glm::vec3 color;
 
@@ -47,6 +47,16 @@ public:
     const float area;
     float inertia;
     float invInertia;
+
+    glm::mat4 rotation; // MUST BE ORTHOGONAL
+    glm::vec3 angularVelocity; // axis of rotation
+
+    glm::mat3 inertiaTensor;
+    glm::mat3 invIntertiaTensor;
+    glm::mat3 RigidBody::computeInertiaTensor();
+
+
+    Texture texture;
 
     const bool isStatic;
 
@@ -60,8 +70,8 @@ public:
 
     const ShapeType shapeType;
 
-    static bool CreateCircleBody(float radius, glm::vec3 position, float density, bool isStatic, float restitution, std::shared_ptr<RigidBody>& body, std::string& errorMessage, std::shared_ptr<Mesh> mesh);
-    static bool CreateSquareBody(float width, float height, float depth, glm::vec3 position, float density, bool isStatic, float restitution, std::shared_ptr<RigidBody>& body, std::string& errorMessage, std::shared_ptr<Mesh> mesh);
+    static bool CreateCircleBody(float radius, glm::vec3 position, float density, bool isStatic, float restitution, std::shared_ptr<RigidBody>& body, std::string& errorMessage, std::shared_ptr<Mesh> mesh, Texture& texture);
+    static bool CreateSquareBody(float width, float height, float depth, glm::vec3 position, float density, bool isStatic, float restitution, std::shared_ptr<RigidBody>& body, std::string& errorMessage, std::shared_ptr<Mesh> mesh, Texture& texture);
 
     void Move(glm::vec3 amount);
     void moveTo(glm::vec3 newPosition) { position = newPosition; }
@@ -72,15 +82,15 @@ public:
     glm::vec3 getLinearVelocity() const { return linearVelocity; }
     ShapeType getType() const { return shapeType;  }
     glm::vec3 getPosition() const { return position; }
-    float getAngularVelocity() const { return angularVelocity; }
+    glm::vec3 getAngularVelocity() const { return angularVelocity; }
     std::shared_ptr<Mesh> getMesh() const { return mesh; }
     vector<glm::vec3> getTransformedVertices();
     glm::mat4 getTransformMatrix();
-    
-
+    vector<Face> getFaces();
+    vector<int> getEdges() { return mesh->edges; }
 
     void setLinearVelocity(glm::vec3 newVelocity) { linearVelocity = newVelocity;  }
-    void setAngularVelocity(float newVelocity) { angularVelocity = newVelocity; }
+    void setAngularVelocity(glm::vec3 newVelocity) { angularVelocity = newVelocity; }
 
 
     void Step(float time, glm::vec3 gravity, int iterations);

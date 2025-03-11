@@ -28,8 +28,8 @@ const float RES_HEIGHT = 720;
 const float ASPECT_RATIO = RES_WIDTH / RES_HEIGHT;
 const float NEAR_PLANE = 0.1f;
 const float FAR_PLANE = 100.0f;
-const float SCALE_FACTOR = 1.6f; // THIS IS THE AMOUNT OF PIXELS PER CENTIMETER
-const int SUBSTEPS = 20;
+const float SCALE_FACTOR = 1.6f; 
+const int SUBSTEPS = 10;
 float lastX = RES_WIDTH / 2, lastY = RES_HEIGHT / 2;
 bool firstMouse = true;
 
@@ -146,7 +146,7 @@ int main()
 
     // Creates Texture
     Texture crateTexture("resources/textures/container.jpg", 0);
-    crateTexture.use();
+    Texture squareTexture("resources/textures/blue_squares.jpg", 0);
 
     double currentTime = glfwGetTime();
     double accumulator = 0.0;
@@ -154,7 +154,7 @@ int main()
 
     std::shared_ptr<RigidBody> body;
     std::string errorMessage = "";
-    bool success = RigidBody::CreateSquareBody(100.0f, 10.0f, 100.0f, glm::vec3(0.0f, -10.0f, 0.0f), 1.0f, true, 0.5f, body, errorMessage, engine.getSquareMesh());
+    bool success = RigidBody::CreateSquareBody(100.0f, 10.0f, 100.0f, glm::vec3(0.0f, -10.0f, 0.0f), 1.0f, true, 0.5f, body, errorMessage, engine.getSquareMesh(), squareTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
@@ -172,29 +172,32 @@ int main()
     }
     engine.AddBody(body);*/
 
-    /*success = RigidBody::CreateCircleBody(0.5f, glm::vec3(0.1f, 1.5f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSphereMesh());
+   /*success = RigidBody::CreateCircleBody(0.5f, glm::vec3(3.0f, 1.5f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSphereMesh());
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);
 
-    success = RigidBody::CreateSquareBody(1.0f,1.0f,1.0f, glm::vec3(0.1f, 1.5f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh());
+    success = RigidBody::CreateCircleBody(0.5f, glm::vec3(3.0f, 0.9f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSphereMesh());
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);*/
-    success = RigidBody::CreateSquareBody(1.0f, 1.0f, 1.0f, glm::vec3(0.2f, 1.5f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh());
+
+    success = RigidBody::CreateSquareBody(3.0f,1.0f,1.0f, glm::vec3(0.0f, 1.5f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh(), crateTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);
 
-    success = RigidBody::CreateSquareBody(1.0f,1.0f,1.0f, glm::vec3(-5.0f, 2.0f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh());
+    success = RigidBody::CreateSquareBody(1.0f,1.0f,2.0f, glm::vec3(-0.1f, 4.0f, 9.5f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh(), crateTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);
-    body->rotate(45.0f, glm::vec3(1.0, 1.0, 1.0));
+
+    //body->rotate(45, glm::vec3(0.0f, 0.3f, 1.0f));
+    //body->setAngularVelocity(glm::vec3(1.0f, 1.0f, 1.0f));
 
     glEnable(GL_DEPTH_TEST);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -208,10 +211,6 @@ int main()
 
         while (accumulator >= FIXED_TIMESTEP) {
             processInput(window, camera);
-
-            body->Move(glm::vec3(0.1,0.0,0.0));
-            //body->rotate(1.0f, glm::vec3(1.0f, 0.5f, 0.0f));
-
             ++ticks;
             engine.Step(FIXED_TIMESTEP, SUBSTEPS);
 

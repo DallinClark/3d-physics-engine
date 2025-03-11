@@ -1,9 +1,10 @@
 #include "../include/mesh.h"
 
-Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, ShapeType type) {
+Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices,vector<glm::vec4> verticesNoDuplicates, ShapeType type) {
     this->vertices = vertices;
     this->indices = indices;
     this->shapeType = type;
+    this->verticesNoDuplicates = verticesNoDuplicates;
 
     setupMesh();
 }

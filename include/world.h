@@ -44,9 +44,10 @@ public:
 	void Step(float time, int iterations);
 	void StepBodies(float time, int iterations);
 
-	/*void ResolveCollisionsBasic(CollisionManifold contact);
-	void ResolveCollisionsWithRotation(CollisionManifold contact);
-	void ResolveCollisionsWithRotationAndFriction(CollisionManifold contact);*/
+	void resolveCollisions(CollisionManifold contact);
+	//void ResolveCollisionsBasic(CollisionManifold contact);
+	void resolveCollisionsWithRotation(CollisionManifold contact);
+	//void ResolveCollisionsWithRotationAndFriction(CollisionManifold contact);
 
 
 	void draw(Shader& shader, glm::mat4 view, glm::mat4 projection);
