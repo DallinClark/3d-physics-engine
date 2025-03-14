@@ -2,6 +2,7 @@
 *.vcxproj*
 *.sln
 3d-ph*
+.vs*
 
 #ignore build and debug files
 x64/
