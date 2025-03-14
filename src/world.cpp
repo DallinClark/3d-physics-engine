@@ -243,34 +243,6 @@ bool World::GetBody(int index, std::shared_ptr<RigidBody>& body) {
 void World::resolveCollisions(CollisionManifold contact) {
 	std::shared_ptr<RigidBody> bodyA = contact.bodyA;
 	std::shared_ptr<RigidBody> bodyB = contact.bodyB;
-	glm::vec3 normal = contact.normal;
-	float depth = contact.depth;
-	
-	glm::vec3 linVelocityA = bodyA->getLinearVelocity();
-	glm::vec3 linVelocityB = bodyB->getLinearVelocity();
-	
-	glm::vec3 relativeVelocity = linVelocityB - linVelocityA;
-	
-	if (glm::dot(relativeVelocity, normal) > 0.0f) {
-		return;
-	}
-	
-	float e = std::min(bodyA->restitution, bodyB->restitution);
-	
-	
-	float j = -(1.0f + e) * glm::dot(relativeVelocity, normal);
-	j /= bodyA->invMass + bodyB->invMass;
-	
-	glm::vec3 impulse = j * normal;
-	
-	bodyA->setLinearVelocity(linVelocityA - (impulse * bodyA->invMass));
-	bodyB->setLinearVelocity(linVelocityB + (impulse * bodyB->invMass));
-}
-
-void World::resolveCollisionsWithRotation(CollisionManifold contact) {
-	// Retrieve the two bodies, the collision normal, and the contact points from the manifold.
-	std::shared_ptr<RigidBody> bodyA = contact.bodyA;
-	std::shared_ptr<RigidBody> bodyB = contact.bodyB;
 	glm::vec3 normal = contact.normal;  // 3D collision normal
 	std::vector<glm::vec3> contactList = contact.contactPoints;
 	int contactCount = contact.contactCount;
@@ -412,53 +384,50 @@ void World::Step(float time, int iterations) {
 		contactPairs.clear();
 
 		StepBodies(time, iterations);
-		//BroadPhase();
+		BroadPhase();
 		NarrowPhase();
 	}
 }
-//
-//void World::BroadPhase() {
-//	for (int i = 0; i < bodyList.size(); ++i) {
-//		std::shared_ptr<RigidBody> bodyA = bodyList[i];
-//		AABB bodyAAabb = bodyA->getAABB();
-//
-//		for (int j = i + 1; j < bodyList.size(); ++j) {
-//			std::shared_ptr<RigidBody> bodyB = bodyList[j];
-//			AABB bodyBAabb = bodyB->getAABB();
-//
-//			if (bodyA->isStatic && bodyB->isStatic) {
-//				continue;
-//			}
-//
-//			if (Collisions::IntersectAABBs(bodyAAabb, bodyBAabb)) {
-//				continue;
-//			}
-//
-//			contactPairs.push_back(ContactPair(i, j));
-//		}
-//	}
-//}
-void World::NarrowPhase() {
-	glm::vec3 normal;
-	float depth = 0.0f;
-	for (int i = 0; i < bodyList.size() - 1; ++i) {
+
+void World::BroadPhase() {
+	for (int i = 0; i < bodyList.size(); ++i) {
 		std::shared_ptr<RigidBody> bodyA = bodyList[i];
+		AABB bodyAAabb = bodyA->getAABB();
 
 		for (int j = i + 1; j < bodyList.size(); ++j) {
 			std::shared_ptr<RigidBody> bodyB = bodyList[j];
+			AABB bodyBAabb = bodyB->getAABB();
 
-			if (Collisions::collide(bodyA, bodyB, normal, depth)) {
-				vector<glm::vec3> collisionPoints;
-				int collisionCount;
-				Collisions::findContactPoints(bodyA, bodyB, normal, depth, collisionPoints, collisionCount);
-				/*cout << "COLLISION COUNT: " << collisionCount << "\n";
-				cout << "FIRST POINT: " << collisionPoints[0].x << ", " << collisionPoints[0].y << ", " << collisionPoints[0].z << "\n";*/
-				CollisionManifold contact(bodyA, bodyB, depth, normal, collisionPoints, collisionCount);
-
-				seperateBodies(bodyA, bodyB, (normal * depth));
-
-				resolveCollisionsWithRotation(contact);
+			if (bodyA->isStatic && bodyB->isStatic) {
+				continue;
 			}
+
+			if (AABB::intersectAABBs(bodyAAabb, bodyBAabb)) {
+				contactPairs.push_back(ContactPair(i, j));;
+			}
+		}
+	}
+}
+
+void World::NarrowPhase() {
+	glm::vec3 normal;
+	float depth = 0.0f;
+	for (int i = 0; i < contactPairs.size(); ++i) {
+		ContactPair currPair = contactPairs[i];
+		std::shared_ptr<RigidBody> bodyA = bodyList[currPair.object1];
+		std::shared_ptr<RigidBody> bodyB = bodyList[currPair.object2];
+
+		if (Collisions::collide(bodyA, bodyB, normal, depth)) {
+			vector<glm::vec3> collisionPoints;
+			int collisionCount;
+			Collisions::findContactPoints(bodyA, bodyB, normal, depth, collisionPoints, collisionCount);
+			//cout << "COLLISION COUNT: " << collisionCount << "\n";
+			//cout << "FIRST POINT: " << collisionPoints[0].x << ", " << collisionPoints[0].y << ", " << collisionPoints[0].z << "\n";
+			CollisionManifold contact(bodyA, bodyB, depth, normal, collisionPoints, collisionCount);
+
+			seperateBodies(bodyA, bodyB, (normal * depth));
+
+			resolveCollisions(contact);
 		}
 	}
 }

@@ -17,10 +17,10 @@ class World {
 public:
 
 	struct ContactPair {
-		int item1;
-		int item2;
+		int object1;
+		int object2;
 
-		ContactPair(int a, int b) : item1(a), item2(b) {}
+		ContactPair(int a, int b) : object1(a), object2(b) {}
 	};
 
 	static const float MIN_BODY_SIZE;
@@ -45,9 +45,6 @@ public:
 	void StepBodies(float time, int iterations);
 
 	void resolveCollisions(CollisionManifold contact);
-	//void ResolveCollisionsBasic(CollisionManifold contact);
-	void resolveCollisionsWithRotation(CollisionManifold contact);
-	//void ResolveCollisionsWithRotationAndFriction(CollisionManifold contact);
 
 
 	void draw(Shader& shader, glm::mat4 view, glm::mat4 projection);

@@ -165,15 +165,6 @@ glm::mat4 RigidBody::getTransformMatrix() {
 }
 
 
-//vector<glm::vec4> RigidBody::getTransformedVertices() {
-//    vector<glm::vec4> vertices = mesh->getVertexPositions();
-//    glm::mat4 trans = getTransformMatrix();
-//    for (int i = 0; i < vertices.size(); ++i) {
-//        vertices[i] = trans * vertices[i];
-//    }
-//    return vertices;
-//}
-
 //TODO fix this so it combines with getTransformedVertices
 vector<Face> RigidBody::getFaces() {
     vector<Face> faces = mesh->faces;
@@ -212,7 +203,6 @@ void RigidBody::Step(float time, glm::vec3 gravity, int iterations) {
         return;
     }
    
-
     time /= (float)iterations;
 
     linearVelocity += gravity * time;
@@ -243,10 +233,12 @@ void RigidBody::AddForce(glm::vec2 amount) {
 
 AABB RigidBody::getAABB() {
     if (aabbUpdateRequired) {
-        float minX = 99999.9f;
-        float minY = 99999.9f;
-        float maxX = -99999.9f;
-        float maxY = -99999.9f;
+        float minX = FLT_MAX;
+        float minY = FLT_MAX;
+        float minZ = FLT_MAX;
+        float maxX = -FLT_MAX;
+        float maxY = -FLT_MAX;
+        float maxZ = -FLT_MAX;
 
         if (shapeType == ShapeType::Cube) {
             vector<glm::vec3> vertices = getTransformedVertices();
@@ -256,34 +248,52 @@ AABB RigidBody::getAABB() {
 
                 if (v.x < minX) { minX = v.x; }
                 if (v.y < minY) { minY = v.y; }
+                if (v.z < minZ) { minZ = v.z; }
                 if (v.x > maxX) { maxX = v.x; }
                 if (v.y > maxY) { maxY = v.y; }
+                if (v.z > maxZ) { maxZ = v.z; }
             }
         }
         else {
             minX = position.x - radius;
             minY = position.y - radius;
+            minZ = position.z - radius;
             maxX = position.x + radius;
             maxY = position.y + radius;
+            maxZ = position.z + radius;
         }
-        this->aabb = AABB(minX, minY, maxX, maxY);
+        this->aabb = AABB(minX, minY, minZ, maxX, maxY, maxZ);
         aabbUpdateRequired = false;
     }
     return this->aabb;
 }
 
 glm::mat3 RigidBody::computeInertiaTensor() {
-    float w = width;
-    float h = height;
-    float d = depth;
+    /*if (isStatic) {
+        return glm::mat3(0.0f);
+    }*/
+    if (shapeType == ShapeType::Cube) {
+        float w = width;
+        float h = height;
+        float d = depth;
 
-    float Ixx = (1.0f / 12.0f) * mass * (h * h + d * d);
-    float Iyy = (1.0f / 12.0f) * mass * (w * w + d * d);
-    float Izz = (1.0f / 12.0f) * mass * (w * w + h * h);
+        float Ixx = (1.0f / 12.0f) * mass * (h * h + d * d);
+        float Iyy = (1.0f / 12.0f) * mass * (w * w + d * d);
+        float Izz = (1.0f / 12.0f) * mass * (w * w + h * h);
 
-    return glm::mat3(
-        Ixx, 0.0f, 0.0f,
-        0.0f, Iyy, 0.0f,
-        0.0f, 0.0f, Izz
-    );
+        return glm::mat3(
+            Ixx, 0.0f, 0.0f,
+            0.0f, Iyy, 0.0f,
+            0.0f, 0.0f, Izz
+        );
+    }
+    else if (shapeType == ShapeType::Sphere) {
+        float r = radius;  // Assumes the sphere's radius is stored in "radius"
+        float I = (2.0f / 5.0f) * mass * r * r;
+        return glm::mat3(
+            I, 0.0f, 0.0f,
+            0.0f, I, 0.0f,
+            0.0f, 0.0f, I
+        );
+    }
 }

@@ -158,27 +158,10 @@ bool Collisions::intersectPolygons(const vector<glm::vec3>& verticesA, const vec
                 smallestAxis = -smallestAxis;
         }
     }
-
     normal = smallestAxis;
     depth = minOverlap;
     return true;
 }
-
-//std::vector<glm::vec3> Collisions::getFaceNormals(const std::vector<glm::vec3>& vertices, std::vector<int> faces) {
-//    std::vector<glm::vec3> normals;
-//    if (vertices.size() < 2)
-//        return normals;
-//
-//    // Compute the normal by crossing two of the edges, faces should always be coplanar
-//    for (size_t i = 0; i < faces.size(); i += 4) {
-//        glm::vec3 a = vertices[faces[i]];
-//        glm::vec3 b = vertices[faces[i + 1]];
-//        glm::vec3 c = vertices[faces[i + 2]];
-//
-//        normals.push_back(glm::cross(b - a, c - a));
-//    }
-//    return normals;
-//}
 
 void Collisions::projectVerticesOntoAxis(const std::vector<glm::vec3>& vertices, const glm::vec3& axis, float& min, float& max) {
     min = FLT_MAX;
@@ -299,9 +282,38 @@ static std::vector<glm::vec3> clipPolygonAgainstPlane(
     return output;
 }
 
-
-
 void Collisions::findContactPoints(
+    std::shared_ptr<RigidBody> bodyA,
+    std::shared_ptr<RigidBody> bodyB,
+    const glm::vec3& collisionNormal,  // points from A to B
+    float penetrationDepth,
+    std::vector<glm::vec3>& outContactPoints,
+    int& outContactCount) {
+    if (bodyA->shapeType == ShapeType::Cube ) {
+        if (bodyB->shapeType == ShapeType::Cube) {
+            findContactPointsPolygonToPolygon(bodyA, bodyB, collisionNormal, penetrationDepth, outContactPoints, outContactCount);
+            return;
+        }
+        if (bodyB->shapeType == ShapeType::Sphere) {
+            findContactPointsSphereToPolygon(bodyB, bodyA, collisionNormal, penetrationDepth, outContactPoints, outContactCount);
+            return;
+        }
+    }
+    if (bodyA->shapeType == ShapeType::Sphere) {
+        if (bodyB->shapeType == ShapeType::Cube) {
+            findContactPointsSphereToPolygon(bodyA, bodyB, -collisionNormal, penetrationDepth, outContactPoints, outContactCount);
+            return;
+        }
+        if (bodyB->shapeType == ShapeType::Sphere) {
+            findContactPointsSphereToSphere(bodyB, bodyA, collisionNormal, penetrationDepth, outContactPoints, outContactCount);
+            return;
+        }
+    }
+}
+
+
+
+void Collisions::findContactPointsPolygonToPolygon(
     std::shared_ptr<RigidBody> bodyA,
     std::shared_ptr<RigidBody> bodyB,
     const glm::vec3& collisionNormal,  // points from A to B
@@ -380,16 +392,12 @@ void Collisions::findContactPoints(
     }
 
     glm::vec3 planePoint = referenceFace.vertices[0];
-
-    // Container for final contact points.
     std::vector<glm::vec3> finalContacts;
-
 
     for (const auto& pt : clippedPolygon) {
         // Compute the distance from the point to the reference plane.
         float dist = glm::dot((pt - planePoint), referenceFace.normal);
 
-        // If the distance is less than the tolerance, consider the point as inside (penetrating).
         if (dist < 0) {
             finalContacts.push_back(pt);
         }
@@ -399,5 +407,109 @@ void Collisions::findContactPoints(
     outContactCount = static_cast<int>(finalContacts.size());
     if (outContactCount == 0) {
         std::cerr << "NO CONTACT POINTS FOUND\n";
+        //outContactPoints = { clippedPolygon[0] };
+        //outContactCount = 1;
     }
 }
+void Collisions::findContactPointsSphereToSphere(
+    std::shared_ptr<RigidBody> bodyA,     // the sphere body
+    std::shared_ptr<RigidBody> bodyB,         // the polygon (convex polyhedron) body
+    const glm::vec3& collisionNormal,        // collision normal from sphere to polygon
+    float penetrationDepth,
+    std::vector<glm::vec3>& outContactPoints,
+    int& outContactCount) {
+
+    float radiusA = bodyA->getRadius();
+    float radiusB = bodyB->getRadius();
+
+    glm::vec3 centerA = bodyA->getPosition();
+    glm::vec3 centerB = bodyB->getPosition();
+
+    outContactPoints.push_back(centerA + (radiusA * collisionNormal));
+    outContactPoints.push_back(centerB - (radiusB * collisionNormal));
+
+    outContactCount = 2;
+}
+
+
+void Collisions::findContactPointsSphereToPolygon(
+    std::shared_ptr<RigidBody> sphere,     // the sphere body
+    std::shared_ptr<RigidBody> poly,         // the polygon (convex polyhedron) body
+    const glm::vec3& collisionNormal,        // collision normal from sphere to polygon
+    float penetrationDepth,
+    std::vector<glm::vec3>& outContactPoints,
+    int& outContactCount) {
+
+    glm::vec3 sphereCenter = sphere->getPosition();
+    float sphereRadius = sphere->radius;  
+
+    std::vector<glm::vec3> verticesPoly = poly->getTransformedVertices();
+    std::vector<Face> facesPoly = poly->getFaces();
+
+    int minIndex = findDeepestVertex(verticesPoly, collisionNormal);
+
+    // Select best faces.
+    Face referenceFace = selectBestFace(verticesPoly, facesPoly, minIndex, collisionNormal);
+
+    // --- Step 2: Project the sphere’s center onto the polygon’s plane ---
+    // The plane is defined by a point (using the first vertex of the face) and the face normal.
+    glm::vec3 planePoint = referenceFace.vertices[0];
+    float planeD = glm::dot(planePoint, referenceFace.normal);
+    float centerToPlaneDist = glm::dot(sphereCenter, referenceFace.normal) - planeD;
+    glm::vec3 projectedPoint = sphereCenter - centerToPlaneDist * referenceFace.normal;
+
+    // --- Step 3: Clamp the projected point to the polygon (if necessary) ---
+    bool inside = true;
+    int numVerts = referenceFace.vertices.size();
+    for (int i = 0; i < numVerts; i++) {
+        glm::vec3 v0 = referenceFace.vertices[i];
+        glm::vec3 v1 = referenceFace.vertices[(i + 1) % numVerts];
+        glm::vec3 edge = v1 - v0;
+        // Create an outward edge normal (perpendicular to edge and face normal)
+        glm::vec3 edgeNormal = glm::cross(referenceFace.normal, edge);
+        // If the point lies outside this edge, it will have a negative dot product.
+        if (glm::dot(projectedPoint - v0, edgeNormal) < 0) {
+            inside = false;
+            break;
+        }
+    }
+
+    glm::vec3 polyContactPoint;
+    if (inside) {
+        // The projection lies within the polygon.
+        polyContactPoint = projectedPoint;
+    }
+    else {
+        // Clamp: Find the closest point on the polygon’s perimeter.
+        float minDist = FLT_MAX;
+        glm::vec3 closestPoint;
+        for (int i = 0; i < numVerts; i++) {
+            glm::vec3 v0 = referenceFace.vertices[i];
+            glm::vec3 v1 = referenceFace.vertices[(i + 1) % numVerts];
+            glm::vec3 edge = v1 - v0;
+            float t = glm::clamp(glm::dot(sphereCenter - v0, edge) / glm::dot(edge, edge), 0.0f, 1.0f);
+            glm::vec3 pointOnEdge = v0 + t * edge;
+            float d = glm::length(sphereCenter - pointOnEdge);
+            if (d < minDist) {
+                minDist = d;
+                closestPoint = pointOnEdge;
+            }
+        }
+        polyContactPoint = closestPoint;
+    }
+
+    // --- Step 4: Determine the sphere's contact point ---
+    // The contact point on the sphere is typically at its surface along -collisionNormal.
+    glm::vec3 sphereContactPoint = sphereCenter - sphereRadius * collisionNormal;
+
+    outContactPoints.clear();
+    outContactPoints.push_back(polyContactPoint);
+    outContactPoints.push_back(sphereContactPoint);
+    outContactCount = 2;
+
+    // Debug output if no contact points are found (should not happen in a proper collision)
+    if (outContactCount == 0) {
+        std::cerr << "NO CONTACT POINTS FOUND\n";
+    }
+}
+

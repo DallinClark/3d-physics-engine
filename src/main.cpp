@@ -29,7 +29,7 @@ const float ASPECT_RATIO = RES_WIDTH / RES_HEIGHT;
 const float NEAR_PLANE = 0.1f;
 const float FAR_PLANE = 100.0f;
 const float SCALE_FACTOR = 1.6f; 
-const int SUBSTEPS = 10;
+const int SUBSTEPS = 15;
 float lastX = RES_WIDTH / 2, lastY = RES_HEIGHT / 2;
 bool firstMouse = true;
 
@@ -124,8 +124,8 @@ int main()
     
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    glm::vec3 cameraPos(0.0f, 0.0f, 20.0f);
-    glm::vec3 cameraLookAt(0.0f, 0.0f, 0.0f);
+    glm::vec3 cameraPos(-7.0f, 0.0f, 30.0f);
+    glm::vec3 cameraLookAt(30.0f, 0.0f, 0.0f);
     glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(cameraPos, cameraLookAt, cameraUp);
@@ -154,50 +154,75 @@ int main()
 
     std::shared_ptr<RigidBody> body;
     std::string errorMessage = "";
-    bool success = RigidBody::CreateSquareBody(100.0f, 10.0f, 100.0f, glm::vec3(0.0f, -10.0f, 0.0f), 1.0f, true, 0.5f, body, errorMessage, engine.getSquareMesh(), squareTexture);
+    bool success = RigidBody::CreateSquareBody(50.0f, 5.0f, 50.0f, glm::vec3(0.0f, -10.0f, 0.0f), 1.0f, true, 0.5f, body, errorMessage, engine.getSquareMesh(), squareTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);
 
-    /*success = RigidBody::CreateSquareBody(1.0f, 1.0f, 1.0f, glm::vec3(2.0f, 2.0f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh());
+
+   /*success = RigidBody::CreateCircleBody(0.5f, glm::vec3(0.5f, 3.5f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSphereMesh(), crateTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);*/
 
-    /*success = RigidBody::CreateSquareBody(1.0f, 1.0f, 1.0f, glm::vec3(0.1f, 1.5f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh());
+    /*success = RigidBody::CreateCircleBody(1.0f, glm::vec3(0.0f, 0.9f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSphereMesh(), crateTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);*/
 
-   /*success = RigidBody::CreateCircleBody(0.5f, glm::vec3(3.0f, 1.5f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSphereMesh());
+    /*success = RigidBody::CreateCircleBody(1.0f, glm::vec3(0.2f, 2.9f, 9.5f), 1.0f, false, 0.5f, body, errorMessage, engine.getSphereMesh(), crateTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);
 
-    success = RigidBody::CreateCircleBody(0.5f, glm::vec3(3.0f, 0.9f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSphereMesh());
+    success = RigidBody::CreateCircleBody(1.0f, glm::vec3(1.2f, 0.9f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSphereMesh(), crateTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);*/
 
-    success = RigidBody::CreateSquareBody(3.0f,1.0f,1.0f, glm::vec3(0.0f, 1.5f, 10.0f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh(), crateTexture);
+    /*success = RigidBody::CreateSquareBody(1.3f,3.3f,1.5f, glm::vec3(0.0f, 1.5f,9.5f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh(), crateTexture);
+    if (!success) {
+        std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
+    }
+    engine.AddBody(body);
+    body->rotate(50, glm::vec3(1.0f, 0.2f, 0.4f));*/
+    success = RigidBody::CreateCircleBody(1.0f, glm::vec3(-13.0f, 0.0f, 9.5f), 1.0f, false, 0.5f, body, errorMessage, engine.getSphereMesh(), crateTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);
 
-    success = RigidBody::CreateSquareBody(1.0f,1.0f,2.0f, glm::vec3(-0.1f, 4.0f, 9.5f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh(), crateTexture);
+    success = RigidBody::CreateSquareBody(5.0, 0.3f, 2.0f, glm::vec3(-12.0f, -2.0f, 9.5f), 1.0f, true, 0.8f, body, errorMessage, engine.getSquareMesh(), crateTexture);
+    if (!success) {
+        std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
+    }
+    body->rotate(-30, glm::vec3(0.0f, 0.0f, 1.0f));
+    engine.AddBody(body);
+
+    success = RigidBody::CreateSquareBody(0.7, 0.7f, 0.7f, glm::vec3(-3.0f, 1.0f, 9.5f), 1.0f, false, 0.8f, body, errorMessage, engine.getSquareMesh(), crateTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
     }
     engine.AddBody(body);
 
-    //body->rotate(45, glm::vec3(0.0f, 0.3f, 1.0f));
-    //body->setAngularVelocity(glm::vec3(1.0f, 1.0f, 1.0f));
+    success = RigidBody::CreateSquareBody(1.0, 1.0f, 1.0f, glm::vec3(-3.0f, 0.0f, 9.5f), 1.0f, false, 0.8f, body, errorMessage, engine.getSquareMesh(), crateTexture);
+    if (!success) {
+        std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
+    }
+    engine.AddBody(body);
+
+    success = RigidBody::CreateSquareBody(1.5f, 1.5f, 1.5f, glm::vec3(-3.0f, -1.0f, 9.5f), 1.0f, false, 0.5f, body, errorMessage, engine.getSquareMesh(), crateTexture);
+    if (!success) {
+        std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
+    }
+    engine.AddBody(body);
+    //body->rotate(90, glm::vec3(1.0f, 1.0f, 1.0f));
+    //body->setAngularVelocity(glm::vec3(5.0f, 0.3f, 0.5f));
 
     glEnable(GL_DEPTH_TEST);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

@@ -26,11 +26,36 @@ public:
 	static void projectVerticesOntoAxis(const std::vector<glm::vec3>& vertices, const glm::vec3& axis, float& min, float& max);
 	static void projectCircleOntoAxis(float radius, glm::vec3 center, glm::vec3 axis, float& min, float& max);
 
-	static void Collisions::findContactPoints(
+	static void findContactPoints(
 		std::shared_ptr<RigidBody> bodyA,
 		std::shared_ptr<RigidBody> bodyB,
 		const glm::vec3& collisionNormal,  
 		float penetrationDepth,
 		std::vector<glm::vec3>& outContactPoints,
 		int& outContactCount);
+
+	static void findContactPointsPolygonToPolygon(
+		std::shared_ptr<RigidBody> bodyA,
+		std::shared_ptr<RigidBody> bodyB,
+		const glm::vec3& collisionNormal,  // points from A to B
+		float penetrationDepth,
+		std::vector<glm::vec3>& outContactPoints,
+		int& outContactCount);
+
+	static void findContactPointsSphereToPolygon(
+		std::shared_ptr<RigidBody> sphere,  
+		std::shared_ptr<RigidBody> poly,      
+		const glm::vec3& collisionNormal,        
+		float penetrationDepth,
+		std::vector<glm::vec3>& outContactPoints,
+		int& outContactCount);
+
+	static void findContactPointsSphereToSphere(
+		std::shared_ptr<RigidBody> bodyA,
+		std::shared_ptr<RigidBody> bodyB,
+		const glm::vec3& collisionNormal,
+		float penetrationDepth,
+		std::vector<glm::vec3>& outContactPoints,
+		int& outContactCount);
+
 };
