@@ -8,11 +8,9 @@
 x64/
 src/glad.c
 dependencies/
-a.out
-src/glad.c
 
-#ignore vscode files
-src/shader
-src/main
-src/rigid_body
-src/world
+# Ignore everything in the src folder
+src/*
+
+# But keep the .cpp files
+!src/**/*.cpp
