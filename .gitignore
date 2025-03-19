@@ -9,3 +9,10 @@ x64/
 src/glad.c
 dependencies/
 a.out
+src/glad.c
+
+#ignore vscode files
+src/shader
+src/main
+src/rigid_body
+src/world
