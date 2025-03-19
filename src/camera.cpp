@@ -4,6 +4,7 @@
 
 Camera::Camera(glm::vec3 position,glm::vec3 lookAt, glm::vec3 up, float yaw, float pitch) : position(position), up(up), yaw(yaw), pitch(pitch), worldUp(up), zoom(45.0f) {
     direction = glm::normalize(position - lookAt);
+    initialDirection = direction;
     right = glm::normalize(glm::cross(direction, worldUp));
     updateCameraVectors();
     updateViewMatrix(); 
@@ -15,8 +16,17 @@ void Camera::setPosition(const glm::vec3& newPos) {
     matrixUpdateRequired = true;
 }
 
-void Camera::lookAt(const glm::vec3& newDirection) {
-    direction = glm::normalize(position - newDirection);
+void Camera::lookAt(const glm::vec3& newLookAtPoint) {
+    // Update the direction towards the new look-at point
+    direction = glm::normalize(newLookAtPoint - position);
+
+    // Recalculate yaw and pitch based on the new direction
+    yaw = glm::degrees(atan2(direction.z, direction.x)); // Calculate yaw
+    pitch = glm::degrees(asin(direction.y));             // Calculate pitch
+
+    // Recalculate right and up vectors
+    updateCameraVectors();
+
     matrixUpdateRequired = true;
 }
 
@@ -73,13 +83,15 @@ void Camera::processMouseScroll(float yoffset) {
 
 
 void Camera::updateCameraVectors() {
-    // calculate the new direction vector
+    // Calculate the new direction vector based on yaw and pitch
     glm::vec3 newDirection;
     newDirection.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     newDirection.y = sin(glm::radians(pitch));
     newDirection.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction = glm::normalize(newDirection);
-    // also re-calculate the Right and Up vector
-    right = glm::normalize(glm::cross(direction, worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+
+    direction = glm::normalize(newDirection); // This adds to the existing direction
+
+    // Recalculate the Right and Up vectors based on the new direction
+    right = glm::normalize(glm::cross(direction, worldUp));
     up = glm::normalize(glm::cross(right, direction));
 }

@@ -18,6 +18,7 @@
 class RigidBody {
 private:
     glm::vec3 position;
+    glm::vec3 prevPosition;
     glm::vec3 linearVelocity;
     bool transformUpdateRequired;
     bool aabbUpdateRequired;
@@ -47,13 +48,16 @@ public:
     const float area;
     float inertia;
     float invInertia;
+    glm::vec3 acceleration;
+    glm::vec3 angularAcceleration;
 
     glm::mat4 rotation; // MUST BE ORTHOGONAL
     glm::vec3 angularVelocity; // axis of rotation
 
     glm::mat3 inertiaTensor;
     glm::mat3 invIntertiaTensor;
-    glm::mat3 RigidBody::computeInertiaTensor();
+    
+    glm::mat3 computeInertiaTensor();
 
 
     Texture texture;
@@ -91,6 +95,9 @@ public:
 
     void setLinearVelocity(glm::vec3 newVelocity) { linearVelocity = newVelocity;  }
     void setAngularVelocity(glm::vec3 newVelocity) { angularVelocity = newVelocity; }
+
+    void setAcceleration(glm::vec3 newAcceleration) { acceleration = newAcceleration; }
+    void setAngularAcceleration(glm::vec3 newAcceleration) { angularAcceleration = newAcceleration; }
 
 
     void Step(float time, glm::vec3 gravity, int iterations);

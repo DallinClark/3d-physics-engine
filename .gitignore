@@ -6,3 +6,5 @@
 
 #ignore build and debug files
 x64/
+src/glad.c
+dependencies/

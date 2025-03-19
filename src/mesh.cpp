@@ -44,7 +44,6 @@ void Mesh::draw(Shader& shader, glm::mat4 world, glm::mat4 view, glm::mat4 proj)
     shader.setMatrix4fv("view", view);
     shader.setMatrix4fv("proj", proj);
 
-    //shader.set3f("myColor", color.x, color.y, color.z);
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
 
     glBindVertexArray(0);

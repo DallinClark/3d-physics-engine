@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <cmath>
+#include <algorithm>
 
 #include "mesh.h"
 #include "collision_manifold.h"

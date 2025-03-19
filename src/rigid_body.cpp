@@ -21,7 +21,7 @@ RigidBody::RigidBody(glm::vec3 position, float density, float mass, float restit
 
     inertiaTensor = computeInertiaTensor();
     invIntertiaTensor = glm::inverse(inertiaTensor);
-
+    
     if (isStatic) {
         invMass = 0.0f;
         invInertia = 0.0f;
@@ -48,6 +48,7 @@ float RigidBody::CalculateRotationalInertia() {
     else if (shapeType == ShapeType::Sphere) {
         return ((1.0f / 2.0f) * mass * radius * radius);
     }
+    return 0.0f; // SHOULDN'T REACH HERE
 }
 
 
@@ -55,7 +56,7 @@ bool RigidBody::CreateCircleBody(float radius, glm::vec3 position, float density
     body = nullptr;
     errorMessage = "";
 
-    float area = M_PI * (radius * radius);
+    float area = (4.0f /3.0f) * M_PI * (radius * radius * radius);
 
     if (area < World::MIN_BODY_SIZE) {
         errorMessage = "CIRCLE RADIUS TOO SMALL";
@@ -79,7 +80,7 @@ bool RigidBody::CreateCircleBody(float radius, glm::vec3 position, float density
 
     restitution = glm::clamp(restitution, 0.0f, 1.0f);
 
-    float mass = area * density; // mass is in grams, density in g/cm^2
+    float mass = density * area; 
 
     body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, radius, 0.0f, 0.0f, 0.0f, ShapeType::Sphere, getRandomColor(), mesh, texture);
 
@@ -114,7 +115,11 @@ bool RigidBody::CreateSquareBody(float width, float height, float depth, glm::ve
 
     restitution = glm::clamp(restitution, 0.0f, 1.0f);
 
-    float mass = area * density; // also * depth
+    float mass = area * density * depth; 
+    if (isStatic) {
+        mass = FLT_MAX;
+    }
+
 
     body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, 0.0f, width, height, depth, ShapeType::Cube, getRandomColor(), mesh, texture);
     
@@ -127,6 +132,32 @@ void RigidBody::Move(glm::vec3 amount) {
     aabbUpdateRequired = true;
 }
 
+glm::mat3 gramSchmidtOrthonormalize(const glm::mat3& A) {
+    glm::vec3 v1 = A[0]; // First column vector
+    glm::vec3 v2 = A[1]; // Second column vector
+    glm::vec3 v3 = A[2]; // Third column vector
+
+    // Step 1: Orthonormalize the first column (v1)
+    v1 = glm::normalize(v1);  // Normalize v1
+
+    // Step 2: Orthonormalize the second column (v2) relative to v1
+    v2 = v2 - glm::dot(v2, v1) * v1; // Subtract projection onto v1
+    v2 = glm::normalize(v2);  // Normalize v2
+
+    // Step 3: Orthonormalize the third column (v3) relative to v1 and v2
+    v3 = v3 - glm::dot(v3, v1) * v1; // Subtract projection onto v1
+    v3 = v3 - glm::dot(v3, v2) * v2; // Subtract projection onto v2
+    v3 = glm::normalize(v3);  // Normalize v3
+
+    // Step 4: Create a new matrix with orthonormal columns
+    glm::mat3 orthonormalizedMatrix;
+    orthonormalizedMatrix[0] = v1;
+    orthonormalizedMatrix[1] = v2;
+    orthonormalizedMatrix[2] = v3;
+
+    return orthonormalizedMatrix;
+}
+
 void RigidBody::rotate(float angleDegrees, const glm::vec3& axis) {
     float angleRadians = glm::radians(angleDegrees);
 
@@ -136,10 +167,7 @@ void RigidBody::rotate(float angleDegrees, const glm::vec3& axis) {
     // Apply the rotation to the current rotation matrix
     rotation = deltaRotation * rotation;  // Local rotation 
 
-    // Re-orthogonalize to prevent drift
-    // Using Gram-Schmidt-like normalization
-    rotation[0] = glm::normalize(rotation[0]);
-    rotation[1] = glm::normalize(rotation[1] - glm::dot(rotation[1], rotation[0]) * rotation[0]);
+    rotation = gramSchmidtOrthonormalize(rotation);
 
     transformUpdateRequired = true;
 }
@@ -219,8 +247,7 @@ void RigidBody::Step(float time, glm::vec3 gravity, int iterations) {
         rotation = deltaRotation * rotation;
 
         // Re-orthogonalization using Gram-Schmidt process
-        rotation[0] = glm::normalize(rotation[0]);
-        rotation[1] = glm::normalize(rotation[1] - glm::dot(rotation[1], rotation[0]) * rotation[0]);
+        rotation = gramSchmidtOrthonormalize(rotation);
     }
 
     transformUpdateRequired = true;
@@ -269,9 +296,9 @@ AABB RigidBody::getAABB() {
 }
 
 glm::mat3 RigidBody::computeInertiaTensor() {
-    /*if (isStatic) {
-        return glm::mat3(0.0f);
-    }*/
+    if (isStatic) {
+        return glm::mat3(99999.0f);
+    }
     if (shapeType == ShapeType::Cube) {
         float w = width;
         float h = height;
@@ -288,7 +315,7 @@ glm::mat3 RigidBody::computeInertiaTensor() {
         );
     }
     else if (shapeType == ShapeType::Sphere) {
-        float r = radius;  // Assumes the sphere's radius is stored in "radius"
+        float r = radius; 
         float I = (2.0f / 5.0f) * mass * r * r;
         return glm::mat3(
             I, 0.0f, 0.0f,
@@ -296,4 +323,5 @@ glm::mat3 RigidBody::computeInertiaTensor() {
             0.0f, 0.0f, I
         );
     }
+    return glm::mat3(0.0f); // SHOULDN'T REACH HERE
 }

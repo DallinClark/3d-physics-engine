@@ -23,6 +23,7 @@ bool Collisions::collide(std::shared_ptr<RigidBody> bodyA, std::shared_ptr<Rigid
             return Collisions::intersectCircles(bodyA->getPosition(), bodyA->getRadius(), bodyB->getPosition(), bodyB->getRadius(), normal, depth);
         }
     }
+    return false;  // SHOULD NEVER REACH HERE
 }
 
 bool Collisions::intersectCircles(glm::vec3 centerA, float radiusA, glm::vec3 centerB, float radiusB, glm::vec3 & normal, float& depth) {
@@ -343,24 +344,25 @@ void Collisions::findContactPointsPolygonToPolygon(
     glm::vec3 newClippingNormal;
 
     if (alignmentA < alignmentB) {
+        referenceFace = faceB;
+        incidentFace = faceA;
+        referencePolygonVertices = verticesB;
+        referencePolygonFaces = facesB;
+        newClippingNormal = -collisionNormal;
+        
+    }
+    else {
         referenceFace = faceA;
         incidentFace = faceB;
         referencePolygonVertices = verticesA;
         referencePolygonFaces = facesA;
         newClippingNormal = collisionNormal;
     }
-    else {
-        referenceFace = faceB;
-        incidentFace = faceA;
-        referencePolygonVertices = verticesB;
-        referencePolygonFaces = facesB;
-        newClippingNormal = -collisionNormal;
-    }
 
     // --- Clipping Stage ---
     // We clip the incident face polygon against each edge of the reference face.
     // For each edge of the reference face, define a clip plane:
-    // The plane’s normal is computed as the cross product of the reference face normal and the edge vector.
+    // The planeï¿½s normal is computed as the cross product of the reference face normal and the edge vector.
     std::vector<glm::vec3> clippedPolygon = incidentFace.vertices;
 
     
@@ -398,7 +400,7 @@ void Collisions::findContactPointsPolygonToPolygon(
         // Compute the distance from the point to the reference plane.
         float dist = glm::dot((pt - planePoint), referenceFace.normal);
 
-        if (dist < 0) {
+        if (dist < 0.0001f) {
             finalContacts.push_back(pt);
         }
     }
@@ -407,10 +409,9 @@ void Collisions::findContactPointsPolygonToPolygon(
     outContactCount = static_cast<int>(finalContacts.size());
     if (outContactCount == 0) {
         std::cerr << "NO CONTACT POINTS FOUND\n";
-        //outContactPoints = { clippedPolygon[0] };
-        //outContactCount = 1;
     }
 }
+
 void Collisions::findContactPointsSphereToSphere(
     std::shared_ptr<RigidBody> bodyA,     // the sphere body
     std::shared_ptr<RigidBody> bodyB,         // the polygon (convex polyhedron) body
@@ -451,7 +452,7 @@ void Collisions::findContactPointsSphereToPolygon(
     // Select best faces.
     Face referenceFace = selectBestFace(verticesPoly, facesPoly, minIndex, collisionNormal);
 
-    // --- Step 2: Project the sphere’s center onto the polygon’s plane ---
+    // --- Step 2: Project the sphereï¿½s center onto the polygonï¿½s plane ---
     // The plane is defined by a point (using the first vertex of the face) and the face normal.
     glm::vec3 planePoint = referenceFace.vertices[0];
     float planeD = glm::dot(planePoint, referenceFace.normal);
@@ -480,7 +481,7 @@ void Collisions::findContactPointsSphereToPolygon(
         polyContactPoint = projectedPoint;
     }
     else {
-        // Clamp: Find the closest point on the polygon’s perimeter.
+        // Clamp: Find the closest point on the polygonï¿½s perimeter.
         float minDist = FLT_MAX;
         glm::vec3 closestPoint;
         for (int i = 0; i < numVerts; i++) {
@@ -509,7 +510,7 @@ void Collisions::findContactPointsSphereToPolygon(
 
     // Debug output if no contact points are found (should not happen in a proper collision)
     if (outContactCount == 0) {
-        std::cerr << "NO CONTACT POINTS FOUND\n";
+        //std::cerr << "NO CONTACT POINTS FOUND\n";
     }
 }
 

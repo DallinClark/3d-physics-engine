@@ -5,9 +5,9 @@
 #include <glad/glad.h>
 
 // Default camera values
-const float YAW = -90.0f;
+const float YAW = 0.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
+const float SPEED = 5.0f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -19,6 +19,7 @@ private:
     glm::vec3 right;
     glm::vec3 worldUp;
     glm::mat4 viewMatrix;
+
 
     // euler angles
     float yaw;
@@ -41,6 +42,8 @@ public:
         LEFT,
         RIGHT
     };
+    glm::vec3 initialDirection;
+
 
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3 lookAt = glm::vec3(0.0,0.0,-1.0), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
 
@@ -50,7 +53,7 @@ public:
     void setPosition(const glm::vec3& newPos);
 
     // Set the target the camera is looking at
-    void lookAt(const glm::vec3& newTarget);
+    void lookAt(const glm::vec3& newLookAtPoint);
 
     // Getters for position and target
     glm::vec3 getPosition() const { return position; }
