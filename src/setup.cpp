@@ -138,7 +138,7 @@ void Setup::makeAngryBirds(std::shared_ptr<World> engine, Texture& groundTexture
     }
     engine->AddBody(body);
 
-    body->setLinearVelocity(glm::vec3(-20.0f,0.0f,0.0f));
+    body->setLinearVelocity(glm::vec3(-25.0f,0.0f,0.0f));
 
     success = RigidBody::CreateSquareBody(2.0f,7.0f,2.3f, glm::vec3(-5.0f, 2.5f,-9.0f), 1.0f, false, 0.5f, body, errorMessage, engine->getSquareMesh(), boxTexture);
     if (!success) {

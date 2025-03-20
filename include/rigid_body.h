@@ -13,6 +13,7 @@
 #include <memory>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <mutex>
 
 
 class RigidBody {
@@ -33,6 +34,8 @@ private:
     static glm::vec3 getRandomColor();
 
     float CalculateRotationalInertia();
+
+    mutable std::mutex mutex;
 
 
 public:
@@ -92,6 +95,10 @@ public:
     glm::mat4 getTransformMatrix();
     vector<Face> getFaces();
     vector<int> getEdges() { return mesh->edges; }
+
+    void lockMutex() { mutex.lock(); }
+    void unlockMutex() { mutex.unlock(); }
+    bool tryLockMutex() { return mutex.try_lock(); }
 
     void setLinearVelocity(glm::vec3 newVelocity) { linearVelocity = newVelocity;  }
     void setAngularVelocity(glm::vec3 newVelocity) { angularVelocity = newVelocity; }

@@ -23,7 +23,6 @@ public:
 	static bool intersectCirclePolygon(const glm::vec3& circleCenter,const float& circleRadius, const vector<glm::vec3>& vertices, vector<Face> faces, glm::vec3 polyCenter, glm::vec3& normal, float& depth);
 
 	// Helpers for SAT
-	//static std::vector<glm::vec3> getFaceNormals(const std::vector<glm::vec3>& vertices, std::vector<int> faces);
 	static void projectVerticesOntoAxis(const std::vector<glm::vec3>& vertices, const glm::vec3& axis, float& min, float& max);
 	static void projectCircleOntoAxis(float radius, glm::vec3 center, glm::vec3 axis, float& min, float& max);
 

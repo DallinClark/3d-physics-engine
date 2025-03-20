@@ -151,10 +151,11 @@ int main()
 
     Texture crateTexture("resources/textures/container.jpg", 0);
     Texture squareTexture("resources/textures/blue_squares.jpg", 0);
+    Texture silverTexture("resources/textures/dodgeball.jpg", 0);
 
     //Setup::makeBallFalling(engine, crateTexture, squareTexture);
     //Setup::makeJenga(engine,squareTexture,crateTexture,crateTexture);
-    Setup::makeAngryBirds(engine,squareTexture,crateTexture,crateTexture, camera);
+    Setup::makeAngryBirds(engine,squareTexture,crateTexture,silverTexture, camera);
 
 
     glEnable(GL_DEPTH_TEST);

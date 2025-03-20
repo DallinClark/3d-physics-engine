@@ -1,4 +1,5 @@
 #include "../include/world.h"
+#include <memory>
 
 const float World::MAX_BODY_SIZE = 640.0f * 640.0f;
 const float World::MIN_BODY_SIZE = 0.01f;
@@ -423,13 +424,38 @@ void World::resolveCollisions(CollisionManifold contact) {
 
 
 void World::Step(float time, int iterations) {
-	for (int i = 0; i < iterations; ++i) {
-		contactPairs.clear();
+	// double broadPhaseAverage = 0.0;
+	// double narrowPhaseAverage = 0.0;
 
-		StepBodies(time, iterations);
-		BroadPhase();
-		NarrowPhase();
-	}
+	// using std::chrono::high_resolution_clock;
+    // using std::chrono::duration_cast;
+    // using std::chrono::duration;
+    // using std::chrono::milliseconds;
+
+	for (int i = 0; i < iterations; ++i) {
+        contactPairs.clear();
+
+        StepBodies(time, iterations);
+
+        //auto broadStart = high_resolution_clock::now(); 
+        BroadPhase();
+        //auto broadEnd = high_resolution_clock::now(); 
+
+        //auto narrowStart = high_resolution_clock::now();  
+        NarrowPhase();
+        //auto narrowEnd = high_resolution_clock::now();  
+
+        // Calculate durations for each phase in milliseconds
+        // broadPhaseAverage += duration_cast<milliseconds>(broadEnd - broadStart).count();
+        // narrowPhaseAverage += duration_cast<milliseconds>(narrowEnd - narrowStart).count();
+    }
+
+	// narrowPhaseAverage /= (double)iterations;
+	// broadPhaseAverage /= (double)iterations;
+
+	// std::cout << "Broad Phase Time: " << broadPhaseAverage << "\n";
+	// std::cout << "Narrow Phase Time: " << narrowPhaseAverage << "\n";
+
 }
 
 void World::BroadPhase() {
@@ -453,29 +479,48 @@ void World::BroadPhase() {
 }
 
 void World::NarrowPhase() {
+    std::vector<std::thread> threadList;
+
+    for (int i = 0; i < contactPairs.size(); ++i) {
+		//threadList.push_back(std::thread([this, i]() {
+		checkAndResolveCollisions(contactPairs[i]);
+		//}));
+	}
+
+    // Wait for all threads to finish
+    for (auto& t : threadList) {
+        t.join();
+    }
+}
+
+void World::checkAndResolveCollisions(ContactPair currPair) {
+	std::shared_ptr<RigidBody> bodyA = bodyList[currPair.object1];
+	std::shared_ptr<RigidBody> bodyB = bodyList[currPair.object2];
+
 	glm::vec3 normal;
 	float depth = 0.0f;
-	for (int i = 0; i < contactPairs.size(); ++i) {
-		ContactPair currPair = contactPairs[i];
-		std::shared_ptr<RigidBody> bodyA = bodyList[currPair.object1];
-		std::shared_ptr<RigidBody> bodyB = bodyList[currPair.object2];
 
-		if (Collisions::collide(bodyA, bodyB, normal, depth)) {
-			vector<glm::vec3> collisionPoints;
-			int collisionCount;
+	bool locked = true;
 
-			Collisions::findContactPoints(bodyA, bodyB, normal, depth, collisionPoints, collisionCount);
-			//cout << "COLLISION COUNT: " << collisionCount << "\n";
-			//cout << "FIRST POINT: " << collisionPoints[0].x << ", " << collisionPoints[0].y << ", " << collisionPoints[0].z << "\n";
-			CollisionManifold contact(bodyA, bodyB, depth, normal, collisionPoints, collisionCount);
+	bodyA->lockMutex();
+	bodyB->lockMutex();
 
-			resolveCollisions(contact);
+	if (Collisions::collide(bodyA, bodyB, normal, depth)) {
+		vector<glm::vec3> collisionPoints;
+		int collisionCount;
 
-			seperateBodies(bodyA, bodyB, (normal * depth));
-		}
+		Collisions::findContactPoints(bodyA, bodyB, normal, depth, collisionPoints, collisionCount);
+		CollisionManifold contact(bodyA, bodyB, depth, normal, collisionPoints, collisionCount);
+
+		resolveCollisions(contact);
+
+		seperateBodies(bodyA, bodyB, (normal * depth));
 	}
+
+	bodyA->unlockMutex();
+	bodyB->unlockMutex();
 }
-//
+
 void World::StepBodies(float time, int iterations) {
 	for (int i = 0; i < bodyList.size(); ++i) {
 		if (!bodyList[i]->isStatic) {

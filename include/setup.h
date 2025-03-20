@@ -5,6 +5,8 @@
 #include "texture.h"
 #include "camera.h"
 
+// A class for creating simulations, it places objects and sets the camera
+
 class Setup {
 public:
 	static void makeBallFalling(std::shared_ptr<World> engine, Texture& crateTexture, Texture& squareTexture);

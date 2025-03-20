@@ -408,7 +408,8 @@ void Collisions::findContactPointsPolygonToPolygon(
     outContactPoints = finalContacts;
     outContactCount = static_cast<int>(finalContacts.size());
     if (outContactCount == 0) {
-        std::cerr << "NO CONTACT POINTS FOUND\n";
+        //std::cerr << "NO CONTACT POINTS FOUND\n";    TODO figure out why this sometimes gets entered, maybe becuase of wrong reference face getting chosen
+
     }
 }
 
@@ -508,9 +509,9 @@ void Collisions::findContactPointsSphereToPolygon(
     outContactPoints.push_back(sphereContactPoint);
     outContactCount = 2;
 
-    // Debug output if no contact points are found (should not happen in a proper collision)
+    // If no contact points are found (should not happen in a proper collision)
     if (outContactCount == 0) {
-        //std::cerr << "NO CONTACT POINTS FOUND\n";
+        std::cerr << "NO CONTACT POINTS FOUND\n";   
     }
 }
 

@@ -10,6 +10,9 @@
 #include "camera.h"
 
 #include <unordered_map>
+#include <chrono>
+#include <thread>
+#include <mutex>
 
 
 
@@ -59,6 +62,9 @@ private:
 	void BroadPhase();
 	void NarrowPhase();
 	void seperateBodies(std::shared_ptr<RigidBody> bodyA, std::shared_ptr<RigidBody> bodyB, glm::vec3 moveVector);
+
+	void checkAndResolveCollisions(ContactPair currPair);
+
 
 	std::vector<std::shared_ptr<RigidBody>> bodyList;
 	std::vector<ContactPair> contactPairs;
