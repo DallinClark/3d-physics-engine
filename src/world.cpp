@@ -20,41 +20,42 @@ void World::createMeshes() {
 	// vertices with tex coords for OpenGL
 	std::vector<Vertex> vertices = {
 		// Front face
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 0.0f)}, // 0
-		{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f)}, // 1
-		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 1.0f)}, // 2
-		{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 1.0f)}, // 3
-
+		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)}, // 0
+		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)}, // 1
+		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)}, // 2
+		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)}, // 3
+	
 		// Back face
-		{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f)}, // 4
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f)}, // 5
-		{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f)}, // 6
-		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f)}, // 7
-
+		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)}, // 4
+		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)}, // 5
+		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f)}, // 6
+		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f)}, // 7
+	
 		// Left face
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f)}, // 8
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f)}, // 9
-		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f)}, // 10
-		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 1.0f)}, // 11
-
+		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)}, // 8
+		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)}, // 9
+		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)}, // 10
+		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)}, // 11
+	
 		// Right face
-		{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 0.0f)}, // 12
-		{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f)}, // 13
-		{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 1.0f)}, // 14
-		{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f)}, // 15
-
+		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)}, // 12
+		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)}, // 13
+		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)}, // 14
+		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)}, // 15
+	
 		// Bottom face
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f)}, // 16
-		{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f)}, // 17
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 1.0f)}, // 18
-		{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 1.0f)}, // 19
-
+		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)}, // 16
+		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)}, // 17
+		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)}, // 18
+		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)}, // 19
+	
 		// Top face
-		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 0.0f)}, // 20
-		{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 0.0f)}, // 21
-		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f)}, // 22
-		{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f)}  // 23
+		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)}, // 20
+		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)}, // 21
+		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)}, // 22
+		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)}  // 23
 	};
+	
 
 
 	std::vector<unsigned int> indices = {
@@ -154,27 +155,28 @@ void World::createMeshes() {
 	float sectorAngle, stackAngle;
 
 	for (int i = 0; i <= SPHERE_STACK_COUNT; ++i) {
-    stackAngle = (M_PI / 2) - (i * stackStep);        // starting from pi/2 to -pi/2
-    xy = radius * cosf(stackAngle);                    // r * cos(u)
-    z = radius * sinf(stackAngle);                     // r * sin(u)
+		stackAngle = (M_PI / 2) - (i * stackStep);        // starting from pi/2 to -pi/2
+		xy = radius * cosf(stackAngle);                    // r * cos(u)
+		z = radius * sinf(stackAngle);                     // r * sin(u)
 
-    // Add (sectorCount + 1) vertices per stack
-    for (int j = 0; j <= SPHERE_SECTOR_COUNT; ++j) {
-        sectorAngle = j * sectorStep;                  // starting from 0 to 2pi
+		// Add (sectorCount + 1) vertices per stack
+		for (int j = 0; j <= SPHERE_SECTOR_COUNT; ++j) {
+			sectorAngle = j * sectorStep;                  // starting from 0 to 2pi
 
-        // Vertex position (x, y, z)
-        x = xy * cosf(sectorAngle);                    // r * cos(u) * cos(v)
-        y = xy * sinf(sectorAngle);                    // r * cos(u) * sin(v)
+			// Vertex position (x, y, z)
+			x = xy * cosf(sectorAngle);                    // r * cos(u) * cos(v)
+			y = xy * sinf(sectorAngle);                    // r * cos(u) * sin(v)
 
-        // Vertex tex coord (u, v) range between [0, 1]
-        u = (float)j / SPHERE_SECTOR_COUNT;
-        v = (float)i / SPHERE_STACK_COUNT;
+			// Vertex tex coord (u, v) range between [0, 1]
+			u = (float)j / SPHERE_SECTOR_COUNT;
+			v = (float)i / SPHERE_STACK_COUNT;
 
-        // Push the vertex with position, tex coord, and normal
-        vertices.push_back({ glm::vec3{x, y, z}, glm::vec2{u, v} });
-        
-        // Optionally, push the vertex without duplicates (assuming this is part of the structure you're using)
-        verticesNoDuplicates.push_back({ glm::vec4{x, y, z, 1}});
+			glm::vec3 normal = glm::normalize(glm::vec3{x, y, z});
+			// Push the vertex with position, tex coord, and normal
+			vertices.push_back({ glm::vec3{x, y, z}, glm::vec2{u, v}, normal });
+			
+			// Optionally, push the vertex without duplicates (assuming this is part of the structure you're using)
+			verticesNoDuplicates.push_back({ glm::vec4{x, y, z, 1}});
     }
 }
 
@@ -209,7 +211,7 @@ void World::createMeshes() {
 	meshes[ShapeType::Sphere] = newSphereMesh;
 }
 
-void World::draw(Shader& shader, glm::mat4 view, glm::mat4 projection) {
+void World::draw(Shader& shader, glm::mat4 view, glm::mat4 projection, glm::vec3 cameraPos, PointLight light) {
 	for (int i = 0; i < bodyList.size(); ++i) {
 		std::shared_ptr<RigidBody> currBody = bodyList[i];
 
@@ -219,7 +221,7 @@ void World::draw(Shader& shader, glm::mat4 view, glm::mat4 projection) {
 		currTexture.use();
 		shader.setInt("texture1", 0);
 
-		currBody->getMesh()->draw(shader, world, view, projection);
+		currBody->getMesh()->draw(shader, world, view, projection, cameraPos, light);
 	}
 }
 

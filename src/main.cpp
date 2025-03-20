@@ -19,6 +19,7 @@
 #include "../include/world.h"
 #include "../include/aabb.h"
 #include "../include/camera.h"
+#include "../include/point_light.h"
 
 #define _USE_MATH_DEFINES
 
@@ -149,9 +150,11 @@ int main()
     double accumulator = 0.0;
     int ticks = 0;
 
-    Texture crateTexture("resources/textures/container.jpg", 0);
-    Texture squareTexture("resources/textures/blue_squares.jpg", 0);
+    Texture crateTexture("resources/textures/wood2.jpg", 0);
+    Texture squareTexture("resources/textures/gray.jpg", 0);
     Texture silverTexture("resources/textures/dodgeball.jpg", 0);
+
+    PointLight light(glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     //Setup::makeBallFalling(engine, crateTexture, squareTexture);
     //Setup::makeJenga(engine,squareTexture,crateTexture,crateTexture);
@@ -176,13 +179,13 @@ int main()
             accumulator -= FIXED_TIMESTEP;
         }        
         // Rendering Commands 
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
         glm::mat4 view = camera->getViewMatrix();
 
-        engine->draw(ourShader, view, projection);
+        engine->draw(ourShader, view, projection, camera->getPosition(), light);
 
         // Check and call events and swap the buffers
         glfwSwapBuffers(window);

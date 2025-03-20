@@ -103,6 +103,9 @@ void Shader::set3f(const std::string& name, float value1, float value2, float va
 {
 	glUniform3f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3);
 }
+void Shader::setVec3(const std::string&name, glm::vec3& values) const {
+	glUniform3fv(glGetUniformLocation(ID, name.c_str()),1 , &values[0]);
+}
 Shader::~Shader() {
 	glDeleteProgram(ID);
 }

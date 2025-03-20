@@ -33,16 +33,23 @@ void Mesh::setupMesh() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+
     glBindVertexArray(0); // Unbind VAO after setting up attributes
 }
 
 
-void Mesh::draw(Shader& shader, glm::mat4 world, glm::mat4 view, glm::mat4 proj) {
+void Mesh::draw(Shader& shader, glm::mat4 world, glm::mat4 view, glm::mat4 proj, glm::vec3 cameraPosition, PointLight light) {
     shader.use();
     glBindVertexArray(VAO);
     shader.setMatrix4fv("world", world);
     shader.setMatrix4fv("view", view);
     shader.setMatrix4fv("proj", proj);
+
+    shader.setVec3("lightPosition", light.Position);
+    shader.setVec3("lightColor", light.Color);
+    shader.setVec3("viewPosition", cameraPosition);
 
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
 
