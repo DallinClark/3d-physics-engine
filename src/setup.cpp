@@ -114,6 +114,17 @@ void Setup::makeAngryBirds(std::shared_ptr<World> engine, Texture& groundTexture
     }
     engine->AddBody(body);
 
+    success = RigidBody::CreateSquareBody(10.0f,50.0f,50.0f, glm::vec3(-30.0f, 22.5f,0.0f), 1.0f, true, 0.5f, body, errorMessage, engine->getSquareMesh(), groundTexture);
+    if (!success) {
+        std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
+    }
+    engine->AddBody(body);
+    success = RigidBody::CreateSquareBody(50.0f,50.0f,10.0f, glm::vec3(0.0f, 22.5f,-30.0f), 1.0f, true, 0.5f, body, errorMessage, engine->getSquareMesh(), groundTexture);
+    if (!success) {
+        std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;
+    }
+    engine->AddBody(body);
+
     success = RigidBody::CreateSquareBody(2.0f,1.0f,8.7f, glm::vec3(-5.0f, 5.2f,0.0f), 1.0f, false, 0.5f, body, errorMessage, engine->getSquareMesh(), boxTexture);
     if (!success) {
         std::cerr << "Failed to create RigidBody: " << errorMessage << std::endl;

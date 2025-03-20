@@ -2,6 +2,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "point_light.h"
+#include "camera.h"
 #include "shader.h"
 
 #include <string>
@@ -17,6 +19,7 @@ struct Vertex {
     glm::vec3 Position;
     //glm::vec3 Color;
     glm::vec2 TexCoords;
+    glm::vec3 Normal;
 };
 
 struct Face {
@@ -40,7 +43,7 @@ public:
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices,vector<glm::vec4> verticesNoDuplicates, ShapeType type);
 
     // render the mesh
-    void draw(Shader& shader, glm::mat4 world, glm::mat4 view, glm::mat4 proj);
+    void draw(Shader& shader, glm::mat4 world, glm::mat4 view, glm::mat4 proj, glm::vec3 cameraPosition, PointLight light);
 
     // getters
     vector<Vertex> getVertices() const { return vertices; }

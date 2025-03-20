@@ -8,6 +8,7 @@
 #include "shader.h"
 #include "collision_manifold.h"
 #include "camera.h"
+#include "point_light.h"
 
 #include <unordered_map>
 #include <chrono>
@@ -50,7 +51,7 @@ public:
 	void resolveCollisions(CollisionManifold contact);
 
 
-	void draw(Shader& shader, glm::mat4 view, glm::mat4 projection);
+	void draw(Shader& shader, glm::mat4 view, glm::mat4 projection, glm::vec3 cameraPos, PointLight light);
 
 	std::shared_ptr<Mesh> getSphereMesh() { return meshes[ShapeType::Sphere]; }
 	std::shared_ptr<Mesh> getSquareMesh() { return meshes[ShapeType::Cube]; }
