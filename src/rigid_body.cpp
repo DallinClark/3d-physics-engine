@@ -45,6 +45,9 @@ float RigidBody::CalculateRotationalInertia() {
     if (shapeType == ShapeType::Cube) {
         return ((1.0f / 12.0f) * mass * (width * width + height * height));
     }
+    else if (shapeType == ShapeType::Tetrahedron) {
+        return 0.0f;
+    }
     else if (shapeType == ShapeType::Sphere) {
         return ((1.0f / 2.0f) * mass * radius * radius);
     }
@@ -86,6 +89,43 @@ bool RigidBody::CreateCircleBody(float radius, glm::vec3 position, float density
 
     return true;
 }
+bool RigidBody::CreateTetrahedronBody(float width, float height, float depth, glm::vec3 position, float density, bool isStatic, float restitution, std::shared_ptr<RigidBody>& body, std::string& errorMessage, std::shared_ptr<Mesh> mesh, Texture& texture) {
+    body = nullptr;
+    errorMessage = "";
+
+    float area = width * height;
+
+    if (area < World::MIN_BODY_SIZE) {
+        errorMessage = "AREA TOO SMALL";
+        return false;
+    }
+
+    if (area > World::MAX_BODY_SIZE) {
+        errorMessage = "AREA TOO LARGE";
+        return false;
+    }
+
+    if (density < World::MIN_DENSITY) {
+        errorMessage = "DENSITY IS TOO SMALL";
+        return false;
+    }
+
+    if (density > World::MAX_DENSITY) {
+        errorMessage = "DENSITY IS TOO LARGE";
+        return false;
+    }
+
+    restitution = glm::clamp(restitution, 0.0f, 1.0f);
+
+    float mass = area * density * depth * 0.5f; 
+    if (isStatic) {
+        mass = FLT_MAX;
+    }
+
+
+    body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, 0.0f, width, height, depth, ShapeType::Tetrahedron, getRandomColor(), mesh, texture);
+    return true;
+}
 
 bool RigidBody::CreateSquareBody(float width, float height, float depth, glm::vec3 position, float density, bool isStatic, float restitution, std::shared_ptr<RigidBody>& body, std::string& errorMessage, std::shared_ptr<Mesh> mesh, Texture& texture) {
     body = nullptr;
@@ -119,7 +159,6 @@ bool RigidBody::CreateSquareBody(float width, float height, float depth, glm::ve
     if (isStatic) {
         mass = FLT_MAX;
     }
-
 
     body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, 0.0f, width, height, depth, ShapeType::Cube, getRandomColor(), mesh, texture);
     
@@ -179,7 +218,7 @@ glm::mat4 RigidBody::getTransformMatrix() {
         glm::mat4 rotationMatrix = rotation;
 
         glm::vec3 scaleVec(1.0f);
-        if (shapeType == ShapeType::Cube) {
+        if (shapeType == ShapeType::Cube || shapeType == ShapeType::Tetrahedron) {
             scaleVec = glm::vec3(width, height, depth);
         }
         else if (shapeType == ShapeType::Sphere) {
@@ -205,9 +244,9 @@ vector<Face> RigidBody::getFaces() {
             vertex = glm::vec3(transformed); 
         }
 
-        // Update the normal.
+        // Update the normal
         glm::vec3 edge1 = face.vertices[1] - face.vertices[0];
-        glm::vec3 edge2 = face.vertices[3] - face.vertices[0];
+        glm::vec3 edge2 = face.vertices[face.vertices.size() - 1] - face.vertices[0];
         face.normal = glm::normalize(glm::cross(edge1, edge2));
         outFaces.push_back(face);
     }
@@ -267,7 +306,7 @@ AABB RigidBody::getAABB() {
         float maxY = -FLT_MAX;
         float maxZ = -FLT_MAX;
 
-        if (shapeType == ShapeType::Cube) {
+        if (shapeType == ShapeType::Cube || shapeType == ShapeType::Tetrahedron) {
             vector<glm::vec3> vertices = getTransformedVertices();
 
             for (int i = 0; i < vertices.size(); ++i) {
@@ -307,6 +346,21 @@ glm::mat3 RigidBody::computeInertiaTensor() {
         float Ixx = (1.0f / 12.0f) * mass * (h * h + d * d);
         float Iyy = (1.0f / 12.0f) * mass * (w * w + d * d);
         float Izz = (1.0f / 12.0f) * mass * (w * w + h * h);
+
+        return glm::mat3(
+            Ixx, 0.0f, 0.0f,
+            0.0f, Iyy, 0.0f,
+            0.0f, 0.0f, Izz
+        );
+    }
+    else if (shapeType == ShapeType::Tetrahedron) {
+        float w = width;
+        float h = height;
+        float d = depth;
+
+        float Ixx = (1.0f / 20.0f) * mass * (h * h + d * d);
+        float Iyy = (1.0f / 20.0f) * mass * (w * w + d * d);
+        float Izz = (1.0f / 20.0f) * mass * (w * w + h * h);
 
         return glm::mat3(
             Ixx, 0.0f, 0.0f,

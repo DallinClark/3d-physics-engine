@@ -79,6 +79,8 @@ public:
 
     static bool CreateCircleBody(float radius, glm::vec3 position, float density, bool isStatic, float restitution, std::shared_ptr<RigidBody>& body, std::string& errorMessage, std::shared_ptr<Mesh> mesh, Texture& texture);
     static bool CreateSquareBody(float width, float height, float depth, glm::vec3 position, float density, bool isStatic, float restitution, std::shared_ptr<RigidBody>& body, std::string& errorMessage, std::shared_ptr<Mesh> mesh, Texture& texture);
+    static bool CreateTetrahedronBody(float width, float height, float depth, glm::vec3 position, float density, bool isStatic, float restitution, std::shared_ptr<RigidBody>& body, std::string& errorMessage, std::shared_ptr<Mesh> mesh, Texture& texture);
+
 
     void Move(glm::vec3 amount);
     void moveTo(glm::vec3 newPosition) { position = newPosition; }

@@ -9,6 +9,7 @@
 #include "collision_manifold.h"
 #include "camera.h"
 #include "point_light.h"
+#include "mesh_creator.h"
 
 #include <unordered_map>
 #include <chrono>
@@ -35,9 +36,6 @@ public:
 
 	static const glm::vec3 GRAVITY_CONSTANT;
 
-	static const int SPHERE_STACK_COUNT;
-	static const int SPHERE_SECTOR_COUNT;
-
 	World();
 
 	void AddBody(std::shared_ptr<RigidBody> body);
@@ -55,6 +53,7 @@ public:
 
 	std::shared_ptr<Mesh> getSphereMesh() { return meshes[ShapeType::Sphere]; }
 	std::shared_ptr<Mesh> getSquareMesh() { return meshes[ShapeType::Cube]; }
+	std::shared_ptr<Mesh> getTetrahedronMesh() { return meshes[ShapeType::Tetrahedron]; }
 
 private:
 	std::unordered_map<ShapeType, std::shared_ptr<Mesh>> meshes;
@@ -64,7 +63,7 @@ private:
 	void NarrowPhase();
 	void seperateBodies(std::shared_ptr<RigidBody> bodyA, std::shared_ptr<RigidBody> bodyB, glm::vec3 moveVector);
 
-	void checkAndResolveCollisions(ContactPair currPair);
+	void checkCollision(ContactPair currPair);
 
 
 	std::vector<std::shared_ptr<RigidBody>> bodyList;

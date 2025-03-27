@@ -1,7 +1,5 @@
 #include "../include/camera.h"
 
-#include <iostream>
-
 Camera::Camera(glm::vec3 position,glm::vec3 lookAt, glm::vec3 up, float yaw, float pitch) : position(position), up(up), yaw(yaw), pitch(pitch), worldUp(up), zoom(45.0f) {
     direction = glm::normalize(position - lookAt);
     right = glm::normalize(glm::cross(direction, worldUp));

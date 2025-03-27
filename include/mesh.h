@@ -12,7 +12,8 @@ using namespace std;
 
 enum class ShapeType {
     Sphere,
-    Cube
+    Cube,
+    Tetrahedron
 };
 
 struct Vertex {

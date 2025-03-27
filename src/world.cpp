@@ -7,208 +7,17 @@ const float World::MIN_DENSITY = 0.5f;
 const float World::MAX_DENSITY = 21.4f;
 const glm::vec3 World::GRAVITY_CONSTANT = glm::vec3(0.0f, -9.8, 0.0f);
 
-const int World::SPHERE_STACK_COUNT = 30;
-const int World::SPHERE_SECTOR_COUNT = 30;
-
 World::World() {
 	createMeshes();
 }
 
 void World::createMeshes() {
-	// Rectangle Mesh
+	std::shared_ptr<Mesh> cubeMesh, sphereMesh, tetraMesh;
+	MeshCreator::createMeshes(cubeMesh, sphereMesh, tetraMesh);
 
-	// vertices with tex coords for OpenGL
-	std::vector<Vertex> vertices = {
-		// Front face
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)}, // 0
-		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)}, // 1
-		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)}, // 2
-		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)}, // 3
-	
-		// Back face
-		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)}, // 4
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)}, // 5
-		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f)}, // 6
-		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f)}, // 7
-	
-		// Left face
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)}, // 8
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)}, // 9
-		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)}, // 10
-		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)}, // 11
-	
-		// Right face
-		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)}, // 12
-		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)}, // 13
-		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)}, // 14
-		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)}, // 15
-	
-		// Bottom face
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)}, // 16
-		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)}, // 17
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)}, // 18
-		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)}, // 19
-	
-		// Top face
-		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)}, // 20
-		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)}, // 21
-		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)}, // 22
-		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)}  // 23
-	};
-	
-
-
-	std::vector<unsigned int> indices = {
-		// Front face
-		0, 1, 2,  1, 2, 3,
-		// Back face
-		4, 5, 6,  5, 6, 7,
-		// Left face
-		8, 9, 10,  9, 10, 11,
-		// Right face
-		12, 13, 14,  13, 14, 15,
-		// Bottom face
-		16, 17, 18,  17, 18, 19,
-		// Top face
-		20, 21, 22,  21, 22, 23
-	};
-
-	std::vector<glm::vec4> verticesNoDuplicates = {
-		// Front face
-		{glm::vec4(-0.5f, -0.5f,  0.5f, 1.0f)}, // 0
-		{glm::vec4(0.5f, -0.5f,  0.5f, 1.0f)}, // 1
-		{glm::vec4(-0.5f,  0.5f,  0.5f, 1.0f)}, // 2
-		{glm::vec4(0.5f,  0.5f,  0.5f, 1.0f)}, // 3
-
-		// Back face
-		{glm::vec4(0.5f, -0.5f, -0.5f, 1.0f)}, // 4
-		{glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f)}, // 5
-		{glm::vec4(0.5f,  0.5f, -0.5f, 1.0f)}, // 6
-		{glm::vec4(-0.5f,  0.5f, -0.5f, 1.0f)} // 7
-	};
-
-	// used to make face structs, counter-clockwise
-	std::vector<int> faces = {
-	1, 3, 2, 0,  // Front 
-	5, 7, 6, 4,  // Back 
-	0, 2, 7, 5,  // Left 
-	1, 4, 6, 3,  // Right 
-	2, 3, 6, 7,  // Top 
-	0, 5, 4, 1   // Bottom 
-	};
-
-	vector<Face> faceStructs;
-	for (size_t i = 0; i < faces.size(); i += 4) {
-		Face face;
-
-		// Loop over each of the 4 indices.
-		for (int j = 0; j < 4; ++j) {
-			int index = faces[i + j];
-			face.indices.push_back(index);
-			// Convert the glm::vec4 to glm::vec3 (ignoring the w component).
-			glm::vec4 v4 = verticesNoDuplicates[index];
-			glm::vec3 v3(v4.x, v4.y, v4.z);
-			face.vertices.push_back(v3);
-		}
-		// Compute the face normal using the first three vertices.
-		// (Assumes the vertices are ordered such that the computed normal points outward.)
-		glm::vec3 edge1 = face.vertices[1] - face.vertices[0];
-		glm::vec3 edge2 = face.vertices[3] - face.vertices[0];
-		face.normal = glm::normalize(glm::cross(edge1, edge2));
-
-		faceStructs.push_back(face);
-	}
-
-	std::vector<int> edges = {
-		0, 1,  // Front bottom edge
-		1, 3,  // Front right edge
-		3, 2,  // Front top edge
-		2, 0,  // Front left edge
-
-		5, 4,  // Back bottom edge 
-		4, 6,  // Back right edge
-		6, 7,  // Back top edge
-		7, 5,  // Back left edge
-
-		0, 5,  // Left-bottom side edge
-		1, 4,  // Right-bottom side edge
-		2, 7,  // Left-top side edge
-		3, 6   // Right-top side edge
-	};
-
-
-	std::shared_ptr<Mesh> newMesh = std::make_shared<Mesh>(vertices, indices, verticesNoDuplicates, ShapeType::Cube);
-	newMesh->setFaces(faceStructs);
-	newMesh->setEdges(edges);
-	meshes[ShapeType::Cube] = newMesh;
-
-	vertices.clear();
-	indices.clear();
-
-	// Circle Mesh
-	float radius = 1.0f;
-	float x, y, z, xy;                              // vertex position
-	float u, v;                                     // vertex texCoord
-
-	float sectorStep = 2 * M_PI / SPHERE_SECTOR_COUNT;
-	float stackStep = M_PI / SPHERE_STACK_COUNT;
-	float sectorAngle, stackAngle;
-
-	for (int i = 0; i <= SPHERE_STACK_COUNT; ++i) {
-		stackAngle = (M_PI / 2) - (i * stackStep);        // starting from pi/2 to -pi/2
-		xy = radius * cosf(stackAngle);                    // r * cos(u)
-		z = radius * sinf(stackAngle);                     // r * sin(u)
-
-		// Add (sectorCount + 1) vertices per stack
-		for (int j = 0; j <= SPHERE_SECTOR_COUNT; ++j) {
-			sectorAngle = j * sectorStep;                  // starting from 0 to 2pi
-
-			// Vertex position (x, y, z)
-			x = xy * cosf(sectorAngle);                    // r * cos(u) * cos(v)
-			y = xy * sinf(sectorAngle);                    // r * cos(u) * sin(v)
-
-			// Vertex tex coord (u, v) range between [0, 1]
-			u = (float)j / SPHERE_SECTOR_COUNT;
-			v = (float)i / SPHERE_STACK_COUNT;
-
-			glm::vec3 normal = glm::normalize(glm::vec3{x, y, z});
-			// Push the vertex with position, tex coord, and normal
-			vertices.push_back({ glm::vec3{x, y, z}, glm::vec2{u, v}, normal });
-			
-			// Optionally, push the vertex without duplicates (assuming this is part of the structure you're using)
-			verticesNoDuplicates.push_back({ glm::vec4{x, y, z, 1}});
-    }
-}
-
-	// generate index list of sphere triangles
-	// k1--k1+1
-	// |  / |
-	// | /  |
-	// k2--k2+1
-
-	int k1, k2;
-	for (int i = 0; i < SPHERE_STACK_COUNT; ++i) {
-		k1 = i * (SPHERE_SECTOR_COUNT + 1);      // beginning of current stack
-		k2 = k1 + SPHERE_SECTOR_COUNT + 1;         // beginning of next stack
-
-		for (int j = 0; j < SPHERE_SECTOR_COUNT; ++j, ++k1, ++k2) {
-			// First triangle of the quad (all stacks except the top pole)
-			if (i != 0) {
-				indices.push_back(k1);
-				indices.push_back(k2);
-				indices.push_back(k1 + 1);
-			}
-			// Second triangle of the quad (all stacks except the bottom pole)
-			if (i != (SPHERE_STACK_COUNT - 1)) {
-				indices.push_back(k1 + 1);
-				indices.push_back(k2);
-				indices.push_back(k2 + 1);
-			}
-		}
-	}
-
-	std::shared_ptr<Mesh> newSphereMesh = std::make_shared<Mesh>(vertices, indices,verticesNoDuplicates, ShapeType::Sphere);
-	meshes[ShapeType::Sphere] = newSphereMesh;
+	meshes[ShapeType::Cube] = cubeMesh;
+	meshes[ShapeType::Sphere] = sphereMesh;
+	meshes[ShapeType::Tetrahedron] = tetraMesh;
 }
 
 void World::draw(Shader& shader, glm::mat4 view, glm::mat4 projection, glm::vec3 cameraPos, PointLight light) {
@@ -400,7 +209,7 @@ void World::resolveCollisions(CollisionManifold contact) {
 			frictionImpulse = jt * tangent;
 		}
 		else {
-			frictionImpulse = -j * tangent * 0.4f;
+			frictionImpulse = -j * tangent * 0.5f;
 		}
 
 		frictionImpulseList.push_back(frictionImpulse);
@@ -481,46 +290,32 @@ void World::BroadPhase() {
 }
 
 void World::NarrowPhase() {
-    std::vector<std::thread> threadList;
-
     for (int i = 0; i < contactPairs.size(); ++i) {
-		//threadList.push_back(std::thread([this, i]() {
-		checkAndResolveCollisions(contactPairs[i]);
-		//}));
-	}
+		ContactPair currPair = contactPairs[i];
+		std::shared_ptr<RigidBody> bodyA = bodyList[currPair.object1];
+		std::shared_ptr<RigidBody> bodyB = bodyList[currPair.object2];
 
-    // Wait for all threads to finish
-    for (auto& t : threadList) {
-        t.join();
+		glm::vec3 normal;
+		float depth = 0.0f;
+
+		// Perform the collision check
+		if (Collisions::collide(bodyA, bodyB, normal, depth)) {
+			std::vector<glm::vec3> collisionPoints;
+			int collisionCount;
+
+			// Find contact points
+			Collisions::findContactPoints(bodyA, bodyB, normal, depth, collisionPoints, collisionCount);
+			
+			// Create a collision manifold
+			CollisionManifold contact(bodyA, bodyB, depth, normal, collisionPoints, collisionCount);
+
+			resolveCollisions(contact);
+			seperateBodies(bodyA, bodyB, (normal * depth));
+        };
     }
 }
 
-void World::checkAndResolveCollisions(ContactPair currPair) {
-	std::shared_ptr<RigidBody> bodyA = bodyList[currPair.object1];
-	std::shared_ptr<RigidBody> bodyB = bodyList[currPair.object2];
-
-	glm::vec3 normal;
-	float depth = 0.0f;
-
-	bool locked = true;
-
-	bodyA->lockMutex();
-	bodyB->lockMutex();
-
-	if (Collisions::collide(bodyA, bodyB, normal, depth)) {
-		vector<glm::vec3> collisionPoints;
-		int collisionCount;
-
-		Collisions::findContactPoints(bodyA, bodyB, normal, depth, collisionPoints, collisionCount);
-		CollisionManifold contact(bodyA, bodyB, depth, normal, collisionPoints, collisionCount);
-
-		resolveCollisions(contact);
-
-		seperateBodies(bodyA, bodyB, (normal * depth));
-	}
-
-	bodyA->unlockMutex();
-	bodyB->unlockMutex();
+void World::checkCollision(ContactPair currPair) {
 }
 
 void World::StepBodies(float time, int iterations) {

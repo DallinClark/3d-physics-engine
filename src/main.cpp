@@ -25,8 +25,8 @@
 
 const float FIXED_TIMESTEP = 1.0f / 60.0f;
 const float FOV = 45.0f;
-const float RES_WIDTH = 3000;
-const float RES_HEIGHT = 1500;
+const float RES_WIDTH = 3940;
+const float RES_HEIGHT = 2160;
 const float ASPECT_RATIO = RES_WIDTH / RES_HEIGHT;
 const float NEAR_PLANE = 0.1f;
 const float FAR_PLANE = 100.0f;
@@ -124,7 +124,7 @@ int main()
     glViewport(0, 0, RES_WIDTH, RES_HEIGHT);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glm::vec3 cameraPos(0.0f, 10.0f, 30.0f);
     glm::vec3 cameraLookAt(0.0f, 0.0f, 0.0f);
@@ -159,6 +159,8 @@ int main()
     //Setup::makeBallFalling(engine, crateTexture, squareTexture);
     //Setup::makeJenga(engine,squareTexture,crateTexture,crateTexture);
     Setup::makeAngryBirds(engine,squareTexture,crateTexture,silverTexture, camera);
+    //Setup::makeBallPit(engine,squareTexture,crateTexture,silverTexture, camera);
+
 
 
     glEnable(GL_DEPTH_TEST);

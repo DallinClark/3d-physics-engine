@@ -5,8 +5,8 @@ bool Collisions::collide(std::shared_ptr<RigidBody> bodyA, std::shared_ptr<Rigid
     ShapeType shapeTypeA = bodyA->getType();
     ShapeType shapeTypeB = bodyB->getType();
 
-    if (shapeTypeA == ShapeType::Cube) {
-        if (shapeTypeB == ShapeType::Cube) {
+    if (shapeTypeA == ShapeType::Cube || shapeTypeA == ShapeType::Tetrahedron) {
+        if (shapeTypeB == ShapeType::Cube || shapeTypeB == ShapeType::Tetrahedron) {
             return Collisions::intersectPolygons(bodyA->getTransformedVertices(), bodyB->getTransformedVertices(),bodyA->getPosition(),bodyB->getPosition(),bodyA->getFaces(), bodyB->getFaces(),bodyA->getEdges(),bodyB->getEdges(), normal, depth);
         }
         if (shapeTypeB == ShapeType::Sphere) {
@@ -14,7 +14,7 @@ bool Collisions::collide(std::shared_ptr<RigidBody> bodyA, std::shared_ptr<Rigid
         }
     }
     if (shapeTypeA == ShapeType::Sphere) {
-        if (shapeTypeB == ShapeType::Cube) {
+        if (shapeTypeB == ShapeType::Cube || shapeTypeB == ShapeType::Tetrahedron) {
             bool result = Collisions::intersectCirclePolygon(bodyA->getPosition(), bodyA->getRadius(), bodyB->getTransformedVertices(),bodyB->getFaces(), bodyB->getPosition(), normal, depth);
             normal = -normal;
             return result;
@@ -290,8 +290,8 @@ void Collisions::findContactPoints(
     float penetrationDepth,
     std::vector<glm::vec3>& outContactPoints,
     int& outContactCount) {
-    if (bodyA->shapeType == ShapeType::Cube ) {
-        if (bodyB->shapeType == ShapeType::Cube) {
+    if (bodyA->shapeType == ShapeType::Cube || bodyA->shapeType == ShapeType::Tetrahedron) {
+        if (bodyB->shapeType == ShapeType::Cube || bodyB->shapeType == ShapeType::Tetrahedron) {
             findContactPointsPolygonToPolygon(bodyA, bodyB, collisionNormal, penetrationDepth, outContactPoints, outContactCount);
             return;
         }
@@ -301,7 +301,7 @@ void Collisions::findContactPoints(
         }
     }
     if (bodyA->shapeType == ShapeType::Sphere) {
-        if (bodyB->shapeType == ShapeType::Cube) {
+        if (bodyB->shapeType == ShapeType::Cube || bodyB->shapeType == ShapeType::Tetrahedron) {
             findContactPointsSphereToPolygon(bodyA, bodyB, -collisionNormal, penetrationDepth, outContactPoints, outContactCount);
             return;
         }
