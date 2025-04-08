@@ -1,23 +1,48 @@
-# 3D Physics Engine 
+# Realtime 3D Physics Engine
 
-**Overview**
+![Banner Image](path/to/banner-image.png)  
+*Insert a banner image representing the physics engine (optional)*
 
-This is a 3D physics engine designed for simulating real-time rigid body dynamics, written in C++ and rendered with OpenGL. 
+## Overview
 
-**Features**
+This project is a simulation tool real-time rigid body dynamics. Developed in C++ and rendered with OpenGL.
 
-Rigid Body Dynamics: Simulates 3D objects with mass, velocity, and rotational movement.
+## Features
 
-Collision Detection: Supports Sphere and Polygon collision detection.
+- **Rigid Body Dynamics:**  
+  Simulates 3D objects with properties like mass, velocity, and rotation.
 
-Collision Resolution: Implements impulse-based resolution for realistic responses.
+- **Dynamic Gravity:**  
+  Customize gravity strength and direction.
 
-Forces and Constraints: Supports gravity, friction, restitution, and basic constraints.
+- **Impulse-Based Collision Resolution:**  
+  Realistic collision responses computed via impulse methods ensure objects behave naturally upon impact.
 
-Broad-phase and Narrow-phase Detection: Optimized for efficiency.
+- **Bounciness and Density:**  
+  Fine-tune restitution (bounciness) and density for each object.
 
-**Acknowledgments**
+- **Convex Shape Support:**  
+  The engine supports collision detection for any convex shape including spheres, polygons, and custom geometries.
 
-@two-bitcoding8018 on Youtube for physics code tutorials
+- **Broad and Narrow Phase Collision Detection:**  
+  Axis allgned boudning boxes are used for the narrow phase, and the Seperating Axis Therom is implemented for the narrow phase. Sutherman-Hodgeman clipping is used to detect colisions points.
 
-learnopengl.com for rendering
+## Screenshots
+
+Showcase your engine in action with images:
+
+- **Example Screenshot:**  
+  ![Screenshot](path/to/screenshot.png)  
+  *Replace with relevant images displaying the simulation environment.*
+
+## Video Demo
+
+Experience the engine in motion:
+
+[![Video Demo](path/to/video_thumbnail.png)](https://www.youtube.com/watch?v=your_demo_video_link)  
+*Replace the thumbnail image and video link with your actual demo details.*
+
+## Acknolowdgements
+
+Thanks to "Two-Bit Coding" and "blackedout01" on Youtube for physics tutorials.
+Thanks to Chris Heckler for his artiles on RBD simulation. https://www.chrishecker.com/Rigid_Body_Dynamics 
