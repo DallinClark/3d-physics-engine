@@ -1,8 +1,11 @@
 # Realtime 3D Physics Engine
 
-![image](https://github.com/user-attachments/assets/26add229-bdab-4f4f-baab-092169b9dd7f)
-![image](https://github.com/user-attachments/assets/f1f3a720-3e13-48c1-9373-dfe694f22643)
-![image](https://github.com/user-attachments/assets/0bf08a96-a131-4997-9439-69bed432c903)
+<div style="display: flex; justify-content: space-around;">
+  <img src="https://github.com/user-attachments/assets/26add229-bdab-4f4f-baab-092169b9dd7f" style="width: 30%;" alt="Image 1" />
+  <img src="https://github.com/user-attachments/assets/f1f3a720-3e13-48c1-9373-dfe694f22643" style="width: 30%;" alt="Image 2" />
+  <img src="https://github.com/user-attachments/assets/0bf08a96-a131-4997-9439-69bed432c903" style="width: 30%;" alt="Image 3" />
+</div>
+
 
 ## Overview
 
@@ -27,8 +30,6 @@ This project is a simulation tool real-time rigid body dynamics. Developed in C+
 
 - **Broad and Narrow Phase Collision Detection:**  
   Axis allgned boudning boxes are used for the narrow phase, and the Seperating Axis Therom is implemented for the narrow phase. Sutherman-Hodgeman clipping is used to detect colisions points.
-
-## Screenshots
 
 ## Video Demo
 
