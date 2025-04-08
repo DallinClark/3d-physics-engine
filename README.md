@@ -12,6 +12,10 @@
 
 This project is a simulation tool real-time rigid body dynamics. Developed in C++ and rendered with OpenGL.
 
+Experience the engine in motion:
+
+![Video Demo]((https://www.youtube.com/watch?v=YO55TEJMftM))  
+
 ## Features
 
 - **Rigid Body Dynamics:**  
@@ -31,12 +35,6 @@ This project is a simulation tool real-time rigid body dynamics. Developed in C+
 
 - **Broad and Narrow Phase Collision Detection:**  
   Axis allgned boudning boxes are used for the narrow phase, and the Seperating Axis Therom is implemented for the narrow phase. Sutherman-Hodgeman clipping is used to detect colisions points.
-
-## Video Demo
-
-Experience the engine in motion:
-
-[![Video Demo]((https://www.youtube.com/watch?v=YO55TEJMftM))  
 
 ## Acknolowdgements
 
