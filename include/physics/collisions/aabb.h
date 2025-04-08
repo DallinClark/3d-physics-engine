@@ -1,6 +1,6 @@
 #pragma once
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
+#include "../../glm/glm.hpp"
+#include "../../glm/gtc/matrix_transform.hpp"
 
 /* Class for axis-alligned boudning boxes used for broad phase collision detection */
 class AABB {
