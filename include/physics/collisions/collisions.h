@@ -1,16 +1,16 @@
 #pragma once
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtc/epsilon.hpp"
+#include "../../glm/glm.hpp"
+#include "../../glm/gtc/matrix_transform.hpp"
+#include "../../glm/gtc/type_ptr.hpp"
+#include "../../glm/gtc/epsilon.hpp"
 
 #include <memory>
 #include <cmath>
 #include <algorithm>
 
-#include "mesh.h"
+#include "../../rendering/mesh.h"
 #include "collision_manifold.h"
-#include "rigid_body.h"
+#include "../rigid_body.h"
 
 class Collisions {
 public:

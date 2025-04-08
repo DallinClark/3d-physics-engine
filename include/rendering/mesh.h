@@ -1,6 +1,6 @@
 #pragma once
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
+#include "../glm/glm.hpp"
+#include "../glm/gtc/matrix_transform.hpp"
 
 #include "point_light.h"
 #include "camera.h"
@@ -13,7 +13,8 @@ using namespace std;
 enum class ShapeType {
     Sphere,
     Cube,
-    Tetrahedron
+    Tetrahedron,
+    Diamond
 };
 
 struct Vertex {
