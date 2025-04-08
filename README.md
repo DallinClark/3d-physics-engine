@@ -17,10 +17,6 @@ Experience the engine in motion:
 <a href="https://www.youtube.com/watch?v=YO55TEJMftM" style="font-size: 48px;">Video Demo</a>
 
 
-https://github.com/user-attachments/assets/1c4c56fe-2b48-4607-bc52-37a635a92faa
-
-
-
 ## Features
 
 - **Rigid Body Dynamics:**  
@@ -45,3 +41,7 @@ https://github.com/user-attachments/assets/1c4c56fe-2b48-4607-bc52-37a635a92faa
 
 Thanks to "Two-Bit Coding" and "blackedout01" on Youtube for physics tutorials.
 Thanks to Chris Heckler for his artiles on RBD simulation. https://www.chrishecker.com/Rigid_Body_Dynamics 
+
+https://github.com/user-attachments/assets/1c4c56fe-2b48-4607-bc52-37a635a92faa
+
+
