@@ -1,6 +1,8 @@
 # Realtime 3D Physics Engine
 
-![image](https://github.com/user-attachments/assets/26add229-bdab-4f4f-baab-092169b9dd7f)) 
+![image](https://github.com/user-attachments/assets/26add229-bdab-4f4f-baab-092169b9dd7f)
+![image](https://github.com/user-attachments/assets/f1f3a720-3e13-48c1-9373-dfe694f22643)
+![image](https://github.com/user-attachments/assets/0bf08a96-a131-4997-9439-69bed432c903)
 
 ## Overview
 
@@ -32,8 +34,7 @@ This project is a simulation tool real-time rigid body dynamics. Developed in C+
 
 Experience the engine in motion:
 
-[![Video Demo](![image](https://github.com/user-attachments/assets/f1f3a720-3e13-48c1-9373-dfe694f22643)
-)]((https://www.youtube.com/watch?v=YO55TEJMftM))  
+[![Video Demo]((https://www.youtube.com/watch?v=YO55TEJMftM))  
 
 ## Acknolowdgements
 
