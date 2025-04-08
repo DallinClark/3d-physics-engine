@@ -1,7 +1,6 @@
 # Realtime 3D Physics Engine
 
-![Banner Image](path/to/banner-image.png)  
-*Insert a banner image representing the physics engine (optional)*
+![Banner Image](![image](https://github.com/user-attachments/assets/26add229-bdab-4f4f-baab-092169b9dd7f))  
 
 ## Overview
 
@@ -29,18 +28,12 @@ This project is a simulation tool real-time rigid body dynamics. Developed in C+
 
 ## Screenshots
 
-Showcase your engine in action with images:
-
-- **Example Screenshot:**  
-  ![Screenshot](path/to/screenshot.png)  
-  *Replace with relevant images displaying the simulation environment.*
-
 ## Video Demo
 
 Experience the engine in motion:
 
-[![Video Demo](path/to/video_thumbnail.png)](https://www.youtube.com/watch?v=your_demo_video_link)  
-*Replace the thumbnail image and video link with your actual demo details.*
+[![Video Demo](![image](https://github.com/user-attachments/assets/f1f3a720-3e13-48c1-9373-dfe694f22643)
+)]((https://www.youtube.com/watch?v=YO55TEJMftM))  
 
 ## Acknolowdgements
 
