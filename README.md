@@ -14,7 +14,7 @@ This project is a simulation tool real-time rigid body dynamics. Developed in C+
 
 Experience the engine in motion:
 
-![Video Demo]((https://www.youtube.com/watch?v=YO55TEJMftM))  
+![Video Demo](https://www.youtube.com/watch?v=YO55TEJMftM)
 
 ## Features
 
