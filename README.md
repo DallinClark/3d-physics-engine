@@ -1,6 +1,6 @@
 # Realtime 3D Physics Engine
 
-![Banner Image](![image](https://github.com/user-attachments/assets/26add229-bdab-4f4f-baab-092169b9dd7f))  
+![image](https://github.com/user-attachments/assets/26add229-bdab-4f4f-baab-092169b9dd7f)) 
 
 ## Overview
 
