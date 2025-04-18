@@ -2,9 +2,9 @@
 #include "../../include/physics/world.h"
 
 RigidBody::RigidBody(glm::vec3 position, float density, float mass, float restitution, float area,
-    bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, glm::vec3 color, std::shared_ptr<Mesh> mesh, Texture& texture)
+    bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, std::shared_ptr<Mesh> mesh, Texture& texture)
     : position(position), density(density), mass(mass), restitution(restitution), area(area), depth(depth),
-    isStatic(isStatic), radius(radius), width(width), height(height), shapeType(shapeType), color(color), mesh(mesh), texture(texture) {
+    isStatic(isStatic), radius(radius), width(width), height(height), shapeType(shapeType), mesh(mesh), texture(texture) {
 
     linearVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
     angularVelocity = glm::vec3();
@@ -33,13 +33,6 @@ RigidBody::RigidBody(glm::vec3 position, float density, float mass, float restit
 
 }
 
-glm::vec3 RigidBody::getRandomColor() {
-    static std::random_device rd;  // Seed for random number engine
-    static std::mt19937 gen(rd()); // Mersenne Twister PRNG
-    static std::uniform_real_distribution<float> dist(0.0f, 1.0f); // Range [0,1]
-
-    return glm::vec3(dist(gen), dist(gen), dist(gen));
-}
 
 float RigidBody::CalculateRotationalInertia() {
     if (shapeType == ShapeType::Cube) {
@@ -85,7 +78,7 @@ bool RigidBody::CreateCircleBody(float radius, glm::vec3 position, float density
 
     float mass = density * area; 
 
-    body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, radius, 0.0f, 0.0f, 0.0f, ShapeType::Sphere, getRandomColor(), mesh, texture);
+    body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, radius, 0.0f, 0.0f, 0.0f, ShapeType::Sphere, mesh, texture);
 
     return true;
 }
@@ -123,7 +116,7 @@ bool RigidBody::CreateTetrahedronBody(float width, float height, float depth, gl
     }
 
 
-    body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, 0.0f, width, height, depth, ShapeType::Tetrahedron, getRandomColor(), mesh, texture);
+    body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, 0.0f, width, height, depth, ShapeType::Tetrahedron, mesh, texture);
     return true;
 }
 
@@ -160,7 +153,7 @@ bool RigidBody::CreateSquareBody(float width, float height, float depth, glm::ve
         mass = FLT_MAX;
     }
 
-    body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, 0.0f, width, height, depth, ShapeType::Cube, getRandomColor(), mesh, texture);
+    body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, 0.0f, width, height, depth, ShapeType::Cube, mesh, texture);
     
     return true;
 }
@@ -198,7 +191,7 @@ bool RigidBody::CreateDiamondBody(float width, float height, float depth, glm::v
         mass = FLT_MAX;
     }
 
-    body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, 0.0f, width, height, depth, ShapeType::Diamond, getRandomColor(), mesh, texture);
+    body = std::make_shared<RigidBody>(position, density, mass, restitution, area, isStatic, 0.0f, width, height, depth, ShapeType::Diamond, mesh, texture);
     
     return true;
 }

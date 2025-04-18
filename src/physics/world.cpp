@@ -209,7 +209,7 @@ void World::resolveCollisions(CollisionManifold contact) {
 			frictionImpulse = jt * tangent;
 		}
 		else {
-			frictionImpulse = -j * tangent * 0.5f;
+			frictionImpulse = -j * tangent * 0.4f;
 		}
 
 		frictionImpulseList.push_back(frictionImpulse);
@@ -235,38 +235,13 @@ void World::resolveCollisions(CollisionManifold contact) {
 
 
 void World::Step(float time, int iterations) {
-	// double broadPhaseAverage = 0.0;
-	// double narrowPhaseAverage = 0.0;
-
-	// using std::chrono::high_resolution_clock;
-    // using std::chrono::duration_cast;
-    // using std::chrono::duration;
-    // using std::chrono::milliseconds;
-
 	for (int i = 0; i < iterations; ++i) {
         contactPairs.clear();
 
         StepBodies(time, iterations);
-
-        //auto broadStart = high_resolution_clock::now(); 
         BroadPhase();
-        //auto broadEnd = high_resolution_clock::now(); 
-
-        //auto narrowStart = high_resolution_clock::now();  
         NarrowPhase();
-        //auto narrowEnd = high_resolution_clock::now();  
-
-        // Calculate durations for each phase in milliseconds
-        // broadPhaseAverage += duration_cast<milliseconds>(broadEnd - broadStart).count();
-        // narrowPhaseAverage += duration_cast<milliseconds>(narrowEnd - narrowStart).count();
     }
-
-	// narrowPhaseAverage /= (double)iterations;
-	// broadPhaseAverage /= (double)iterations;
-
-	// std::cout << "Broad Phase Time: " << broadPhaseAverage << "\n";
-	// std::cout << "Narrow Phase Time: " << narrowPhaseAverage << "\n";
-
 }
 
 void World::BroadPhase() {

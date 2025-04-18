@@ -12,6 +12,7 @@
 #include "collision_manifold.h"
 #include "../rigid_body.h"
 
+// Calculates if objects are colliding and points of collision
 class Collisions {
 public:
 	// Takes in two rigid bodies and returns if they collide and updates depth and normal to depth and direction of collision

@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 
+
 #include "../include/physics/world.h"
 #include "../include/glm/gtc/matrix_transform.hpp"
 
@@ -42,15 +43,15 @@ int main()
 
     //Setup::makeBallFalling(engine, crateTexture, squareTexture);
     //Setup::makeJenga(engine,squareTexture,crateTexture,crateTexture);
-    //Setup::makeAngryBirds(engine,squareTexture,crateTexture,silverTexture, camera);
-    //Setup::makeBallPit(engine,squareTexture,crateTexture,silverTexture, camera);
+    Setup::makeAngryBirds(engine,grayTexture,woodTexture,ballTexture, camera);
+    //Setup::makeBallPit(engine,grayTexture,woodTexture,ballTexture, camera);
     //Setup::makeDiamond(engine,grayTexture,woodTexture,ballTexture, diamondTexture, camera);
-    Setup::makeDiamondLauncher(engine,grayTexture,woodTexture,ballTexture, diamondTexture, camera);
+    //Setup::makeDiamondLauncher(engine,grayTexture,woodTexture,ballTexture, diamondTexture, camera);
 
     // Rendering and simulation loop
-
     double currentTime = window.getTime();
     double accumulator = 0.0;
+
 
     while (!window.shouldClose()) {
 
