@@ -6,7 +6,7 @@
 
 #include <memory>
 
-
+// Holds collision information used in impulse calculation
 class CollisionManifold {
 public:
     std::shared_ptr<RigidBody> bodyA;

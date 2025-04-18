@@ -15,4 +15,5 @@ public:
 	static void makeBallPit(std::shared_ptr<World> engine, Texture& groundTexture, Texture& boxTexture, Texture& sphereTexture, std::shared_ptr<Camera> camera);
 	static void makeDiamondLauncher(std::shared_ptr<World> engine, Texture& groundTexture, Texture& boxTexture, Texture& sphereTexture, Texture& diamondTexture, std::shared_ptr<Camera> camera);
 	static void makeDiamond(std::shared_ptr<World> engine, Texture& groundTexture, Texture& boxTexture, Texture& sphereTexture, Texture& diamondTexture, std::shared_ptr<Camera> camera);
+	static void makeSmallDiamondLauncher(std::shared_ptr<World> engine, Texture& groundTexture, Texture& boxTexture, Texture& sphereTexture, Texture& diamondTexture, std::shared_ptr<Camera> camera);
 	};

@@ -15,7 +15,7 @@
 #include <math.h>
 #include <mutex>
 
-
+// Holds rigid bodies used in simulation
 class RigidBody {
 private:
     glm::vec3 position;
@@ -31,8 +31,6 @@ private:
 
     std::shared_ptr<Mesh> mesh;
 
-    static glm::vec3 getRandomColor();
-
     float CalculateRotationalInertia();
 
     mutable std::mutex mutex;
@@ -40,9 +38,8 @@ private:
 
 public:
     RigidBody(glm::vec3 position, float density, float mass, float restitution, float area,
-        bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, glm::vec3 color, std::shared_ptr<Mesh> mesh, Texture& texture);
+        bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, std::shared_ptr<Mesh> mesh, Texture& texture);
 
-    const glm::vec3 color;
 
     const float density;
     const float mass;
