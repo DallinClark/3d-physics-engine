@@ -23,7 +23,7 @@ Experience the engine in motion:
 ## Features
 
 - **Rigid Body Dynamics:**  
-  Simulates 3D objects with variable properties.
+  Simulates 3D objects with variable properties\
   Adjustable density, dimensions, resitution(bounciness), initial velocity, and initial transforms per object
 
 - **Dynamic Gravity:**  
@@ -43,10 +43,9 @@ Experience the engine in motion:
 
 ## Acknolowdgements
 
-Thanks to "Two-Bit Coding" and "blackedout01" on Youtube for physics tutorials.
+Thanks to "Two-Bit Coding" and "blackedout01" on Youtube for physics tutorials.\
 Thanks to Chris Heckler for his artiles on RBD simulation. https://www.chrishecker.com/Rigid_Body_Dynamics 
 
 
-https://github.com/user-attachments/assets/1c4c56fe-2b48-4607-bc52-37a635a92faa
 
 
