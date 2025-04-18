@@ -39,7 +39,8 @@ Experience the engine in motion:
   The engine supports collision detection for any convex shape including spheres, polygons, and custom geometries
 
 - **Broad and Narrow Phase Collision Detection:**   
-  Axis allgned boudning boxes are used for the narrow phase, and the Seperating Axis Therom is implemented for the narrow phase. Sutherman-Hodgeman clipping is used to detect colisions points
+  Axis allgned boudning boxes are used for the narrow phase, and the Seperating Axis Therom is implemented for the narrow phase.\
+  Sutherman-Hodgeman clipping is used to detect colisions points
 
 ## Acknolowdgements
 
