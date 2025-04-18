@@ -22,11 +22,11 @@ Experience the engine in motion:
 
 ## Features
 
-- **Rigid Body Dynamics:**\  
+- **Rigid Body Dynamics:**\ 
   Simulates 3D objects with variable properties\
   Adjustable density, dimensions, resitution(bounciness), initial velocity, and initial transforms per object
 
-- **Dynamic Gravity:**\  
+- **Dynamic Gravity:**\ 
   Customizable gravity strength and direction.
 
 - **Static Objects:**\
@@ -35,7 +35,7 @@ Experience the engine in motion:
 - **Impulse-Based Collision Resolution:**  \
   Realistic collision responses computed via impulse methods with explicit Euler integration
 
-- **Convex Shape Support:**\  
+- **Convex Shape Support:**  
   The engine supports collision detection for any convex shape including spheres, polygons, and custom geometries
 
 - **Broad and Narrow Phase Collision Detection:**\  
