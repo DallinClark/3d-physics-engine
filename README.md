@@ -22,23 +22,23 @@ Experience the engine in motion:
 
 ## Features
 
-- **Rigid Body Dynamics:**\ 
+- **Rigid Body Dynamics:**  
   Simulates 3D objects with variable properties\
   Adjustable density, dimensions, resitution(bounciness), initial velocity, and initial transforms per object
 
-- **Dynamic Gravity:**\ 
+- **Dynamic Gravity:**  
   Customizable gravity strength and direction.
 
-- **Static Objects:**\
+- **Static Objects:**  
   Supports unmovable objects with infinite mass
 
-- **Impulse-Based Collision Resolution:**  \
+- **Impulse-Based Collision Resolution:**  
   Realistic collision responses computed via impulse methods with explicit Euler integration
 
 - **Convex Shape Support:**  
   The engine supports collision detection for any convex shape including spheres, polygons, and custom geometries
 
-- **Broad and Narrow Phase Collision Detection:**\  
+- **Broad and Narrow Phase Collision Detection:**   
   Axis allgned boudning boxes are used for the narrow phase, and the Seperating Axis Therom is implemented for the narrow phase. Sutherman-Hodgeman clipping is used to detect colisions points
 
 ## Acknolowdgements
